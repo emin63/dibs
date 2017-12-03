@@ -1,0 +1,28 @@
+version: '2'
+services:
+  
+  dibs_main:
+    build: .
+    environment:
+      - MY_CONTAINER=dibs_main
+    ports:
+      - '5055:5055'
+    image: test_dbs
+    networks:
+      - dibs_net
+    container_name: dibs_main
+
+  dibs_peer:
+    image: test_dibs
+    ports:
+      - '5543:5543'
+    depends_on:
+      - dibs_main
+    networks:
+      - dibs_net
+    container_name: dibs_peer
+    environment:
+      - MY_CONTAINER=dibs_peer
+
+networks:
+  dibs_net:

@@ -1,0 +1,2203 @@
+<html lang="en">
+<head>
+<title>DIBS Documentation</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="DIBS Documentation">
+<meta name="generator" content="makeinfo 4.7">
+<link title="Top" rel="top" href="#Top">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc { font-variant:small-caps }
+  span.roman { font-family: serif; font-weight: normal; } 
+--></style>
+</head>
+<body>
+<div class="contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Overview" href="#Overview">1 Overview</a>
+<ul>
+<li><a href="#Overview">1.1 Features</a>
+<ul>
+<li><a href="#Overview">1.1.1 Automated Backup</a>
+<li><a href="#Overview">1.1.2 Incremental Backup</a>
+<li><a href="#Overview">1.1.3 Security</a>
+<li><a href="#Overview">1.1.4 Robustness</a>
+<li><a href="#Overview">1.1.5 Peer Finder Service</a>
+<li><a href="#Overview">1.1.6 Flexible Communication Modes</a>
+<li><a href="#Overview">1.1.7 GUI</a>
+</li></ul>
+</li></ul>
+<li><a name="toc_Installion-and-Configuration" href="#Installion-and-Configuration">2 Installing</a>
+<ul>
+<li><a href="#Installion-and-Configuration">2.1 Prerequisites</a>
+<li><a href="#Installion-and-Configuration">2.2 Installation</a>
+<li><a href="#Installion-and-Configuration">2.3 Configuration</a>
+<ul>
+<li><a href="#Installion-and-Configuration">2.3.1 Create a GPG key</a>
+<ul>
+<li><a href="#Installion-and-Configuration">2.3.1.1 IMPORTANT: DIBS refers to keys by email address</a>
+</li></ul>
+<li><a href="#Installion-and-Configuration">2.3.2 DIBS Commands</a>
+<li><a href="#Installion-and-Configuration">2.3.3 Create An Empty Database</a>
+<li><a href="#Installion-and-Configuration">2.3.4 Customize Default Parameters</a>
+<li><a href="#Installion-and-Configuration">2.3.5 Add Peers</a>
+<ul>
+<li><a href="#Installion-and-Configuration">2.3.5.1 Using the <span class="samp">add_peer</span> Command</a>
+<li><a href="#Installion-and-Configuration">2.3.5.2 Using the <span class="samp">post_contract</span> and <span class="samp">propose_contract</span> Commands</a>
+</li></ul>
+<li><a href="#Installion-and-Configuration">2.3.6 Automated Backup</a>
+<li><a href="#Installion-and-Configuration">2.3.7 Running DIBS</a>
+<li><a href="#Installion-and-Configuration">2.3.8 Preparing for Complete Data Loss</a>
+</li></ul>
+</li></ul>
+<li><a name="toc_Peer-Finder" href="#Peer-Finder">3 Peer Finder</a>
+<ul>
+<li><a href="#Peer-Finder">3.1 Posting a Contract</a>
+<li><a href="#Peer-Finder">3.2 Cancelling a Contract</a>
+<li><a href="#Peer-Finder">3.3 Responding to a Posted Contract</a>
+<li><a href="#Peer-Finder">3.4 Running Your Own Peer Finder Service</a>
+</li></ul>
+<li><a name="toc_Using-DIBS" href="#Using-DIBS">4 Using DIBS</a>
+<ul>
+<li><a href="#The-DIBS-daemon">4.1 The DIBS daemon</a>
+<li><a href="#Automated-Backup">4.2 Automated Backup</a>
+<li><a href="#Manual-Backup">4.3 Manual Backup</a>
+<li><a href="#Recovering-Files">4.4 Recovering Files</a>
+<li><a href="#Recovering-Everything">4.5 Recovering Everything</a>
+<li><a href="#Database-Management">4.6 Database Management</a>
+</li></ul>
+<li><a name="toc_Commands" href="#Commands">5 Commands</a>
+<ul>
+<ul>
+<ul>
+<li><a href="#add_005fpeer">5.0.0.1 add_peer</a>
+<li><a href="#delete_005fpeer">5.0.0.2 delete_peer</a>
+<li><a href="#edit_005fpeer">5.0.0.3 edit_peer</a>
+<li><a href="#start_005fdaemon">5.0.0.4 start_daemon</a>
+<li><a href="#forget">5.0.0.5 forget</a>
+<li><a href="#stop_005fdaemon">5.0.0.6 stop_daemon</a>
+<li><a href="#auto_005fcheck">5.0.0.7 auto_check</a>
+<li><a href="#clear">5.0.0.8 clear</a>
+<li><a href="#store">5.0.0.9 store</a>
+<li><a href="#unstore_005ffile">5.0.0.10 unstore_file</a>
+<li><a href="#recover_005ffile">5.0.0.11 recover_file</a>
+<li><a href="#recover_005fall">5.0.0.12 recover_all</a>
+<li><a href="#show_005fdatabase">5.0.0.13 show_database</a>
+<li><a href="#cleanup">5.0.0.14 cleanup</a>
+<li><a href="#poll_005fpassives">5.0.0.15 poll_passives</a>
+<li><a href="#probe">5.0.0.16 probe</a>
+<li><a href="#process_005fmessage">5.0.0.17 process_message</a>
+<li><a href="#send_005fmessage">5.0.0.18 send_message</a>
+<li><a href="#send_005fhello">5.0.0.19 send_hello</a>
+<li><a href="#merge_005fstats">5.0.0.20 merge_stats</a>
+<li><a href="#post_005fcontract">5.0.0.21 post_contract</a>
+<li><a href="#unpost_005fcontract">5.0.0.22 unpost_contract</a>
+<li><a href="#propose_005fcontract">5.0.0.23 propose_contract</a>
+</li></ul>
+</li></ul>
+</li></ul>
+<li><a name="toc_Options" href="#Options">6 Options</a>
+<ul>
+<ul>
+<li><a href="#Options">6.0.1 Option List</a>
+</li></ul>
+</li></ul>
+<li><a name="toc_Automated-Testing" href="#Automated-Testing">7 Automated Testing</a>
+<ul>
+<li><a href="#Automated-Testing">7.1 Basic Testing Framework</a>
+<li><a href="#Automated-Testing">7.2 Environment Variables Required for Testing</a>
+</li></ul>
+<li><a name="toc_TODO" href="#TODO">8 TODO</a>
+<li><a name="toc_Concept-Index" href="#Concept-Index">Concept Index</a>
+<li><a name="toc_Command-Index" href="#Command-Index">Command Index</a>
+<li><a name="toc_Option-Index" href="#Option-Index">Option Index</a>
+</li></ul>
+</div>
+
+
+
+<div class="node">
+<p><hr>
+<a name="Top"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Overview">Overview</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#dir">(dir)</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
+<br>
+</div>
+
+<ul class="menu">
+<li><a accesskey="1" href="#Overview">Overview</a>
+<li><a accesskey="2" href="#Installion-and-Configuration">Installion and Configuration</a>
+<li><a accesskey="3" href="#Peer-Finder">Peer Finder</a>
+<li><a accesskey="4" href="#Using-DIBS">Using DIBS</a>
+<li><a accesskey="5" href="#Commands">Commands</a>
+<li><a accesskey="6" href="#Options">Options</a>
+<li><a accesskey="7" href="#Automated-Testing">Automated Testing</a>
+<li><a accesskey="8" href="#TODO">TODO</a>
+<li><a accesskey="9" href="#Concept-Index">Concept Index</a>
+<li><a href="#Command-Index">Command Index</a>
+<li><a href="#Option-Index">Option Index</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="Overview"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Installion-and-Configuration">Installion and Configuration</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">1 Overview</h2>
+
+<p>Since disk drives are cheap, backup should be cheap too.  Of course it
+does not help to mirror your data by adding more disks to your own
+computer because a virus, fire, flood, power surge, robbery,
+etc. could still wipe out your local data center.  Instead, you should
+give your files to peers (and in return store their files) so that if
+a catastrophe strikes your area, you can recover data from surviving
+peers.  The Distributed Internet Backup System (DIBS) is designed to
+implement this vision.
+
+   <p>Note that DIBS is a backup system not a file sharing system like
+Napster, Gnutella, Kazaa, etc.  In fact, DIBS encrypts all data
+transmissions so that the peers you exchange files with can not access
+your data.
+
+<h3 class="section">1.1 Features</h3>
+
+<h4 class="subsection">1.1.1 Automated Backup</h4>
+
+<p>After initial configuration, DIBS is designed to run in the background
+and automatically backup desired data.  Specifically, any files,
+directories, or links placed in the DIBS auto backup directory (usually
+~/.dibs/autoBackup) are periodically examined by DIBS and sent to peers
+for backup.  If the data changes, DIBS automatically unstores old
+versions and backs up changes.
+
+<h4 class="subsection">1.1.2 Incremental Backup</h4>
+
+<p>DIBS performs incremental backup.  Specifically, if DIBS is asked to
+backup a file (either automatically or by the user), and DIBS
+determines the file is already backed up and the file is unchanged,
+DIBS does not re-backup the file.  This allows you to efficiently
+backup large numbers of files without wasting bandwidth by repeatedly
+backing up unchanged data.
+
+<h4 class="subsection">1.1.3 Security</h4>
+
+<p>DIBS uses Gnu Privacy Guard (GPG) to encrypt and digitally sign all
+transactions.  Thus you can be confident that even though you are
+sending your files to others for backup, your data will remain private. 
+Furthermore, by using digital signatures, DIBS prevents others from
+impersonating you to store files with your peers.
+
+<h4 class="subsection">1.1.4 Robustness</h4>
+
+<p>DIBS uses Reed-Solomon codes (a type of erasure correcting code
+similar to those used in RAID systems) to gain the maximum robustness
+for a given amount of redundancy.  See the FAQ for a description of
+the benefits of Reed-Solomon codes.
+
+<h4 class="subsection">1.1.5 Peer Finder Service</h4>
+
+<p>DIBS includes a peer finder service to allow you to find peers to
+exchange backup space with.
+
+<h4 class="subsection">1.1.6 Flexible Communication Modes</h4>
+
+<p><a name="Flexible-Communication-Modes"></a>
+Since peers can have varying levels of connectivity to the network,
+DIBS offers different communication methods to support a variety of users.
+
+     <ul>
+<li>active:
+In active mode, the sender directly connects to another peer over the
+network to transfer files and messages.  This is the preferred mode
+for peers who are almost always directly connected to the network.
+
+     <li>passive:
+In passive mode, the sender stores messages in a local queue and
+delivers them to the receiver whenever the receiver initiates a
+connection.  This mode is required when the receiver is behind a
+firewall (and can not be contacted directly) or is not always
+connected to the network.
+
+<h4 class="subsection">1.1.7 GUI</h4>
+
+     <p>DIBS now has a graphical user interface (GUI) to make it easier to
+use.  The current GUI is experimental so comments, suggestions, and
+code contributions are welcomed.
+
+   </ul>
+
+<div class="node">
+<p><hr>
+<a name="Installion-and-Configuration"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Peer-Finder">Peer Finder</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Overview">Overview</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">2 Installing</h2>
+
+<h3 class="section">2.1 Prerequisites</h3>
+
+<p>For DIBS to work, you need to have the following installed:
+
+     <ul>
+<li>Python version 2.3 or greater.
+
+     <li>Gnu Privacy Guard (GPG) version 1.2 or greater.
+
+     <li>If you want to compile the documentation, you will need LaTeX and
+      texinfo installed.
+
+     <li>For Debian users the packages gnupg, python2.3, python2.3-dev,
+      texinfo, and tetex-bin should be enough.
+
+     <li>If you are using Windows, you should also install the Python
+      windows extensions from <a href="http://www.python.org/windows/win32com">http://www.python.org/windows/win32com</a>.
+
+   </ul>
+
+<h3 class="section">2.2 Installation</h3>
+
+<p>To install DIBS, download the binary distribution for you architecture or
+the entire source tarball from <a href="http://dibs.sourceforge.net">http://dibs.sourceforge.net</a> or
+<a href="http://www.csua.berkeley.edu/~emin/source_code/dibs">http://www.csua.berkeley.edu/~emin/source_code/dibs</a>. 
+If you download the source tarball, uncompress it, become root, and do
+<span class="samp">python setup.py install</span> to install. 
+If you do not want to install
+as root, you can do
+<span class="samp">python setup.py install --root=&lt;alternate&gt;/&lt;root&gt;/&lt;path&gt;</span>.
+
+   <p>The main file used to run DIBS is <span class="samp">dibs.py</span> which will usually be
+installed in an appropriate place for Python scripts.  On a UNIX
+system, you should be able to run DIBS using <span class="samp">dibs.py ...</span>.  On a
+Windows system, you may need to do something like
+<span class="samp">C:\&lt;path&gt;\&lt;to&gt;\python.exe dibs.py ...</span>.
+
+<h3 class="section">2.3 Configuration</h3>
+
+<h4 class="subsection">2.3.1 Create a GPG key</h4>
+
+<p>Create a GPG key for DIBS using the command <span class="samp">gpg --gen-key</span>.  You
+<strong>MUST</strong> use an empty passphrase for your key so that DIBS can
+sign/encrypt with it in batch mode.  We recommend choosing the "email
+address" field of the key to be different from your true email address
+by appending .dibs (e.g. <a href="mailto:emin.dibs@alum.mit.edu">emin.dibs@alum.mit.edu</a>).  Make
+sure you give your gpg public key to any peers you want to trade files
+with.  If your GPG key is not <span class="samp">$USER@$HOST</span>, you will need to
+put the commands <span class="samp">dibsPublicKey = '&lt;yourKeyName&gt;'</span> and
+<span class="samp">dibsPrivateKey = '&lt;yourKeyName&gt;'</span> in your <span class="file">dibsrc.py</span> file. 
+See the section in the manual on Options for more details.
+
+<h5 class="subsubsection">2.3.1.1 IMPORTANT: DIBS refers to keys by email address</h5>
+
+<p><a name="GPG-Keys-Named-via-Email-Address"></a>
+
+   <p>DIBS currently refers to GPG keys via the email address as opposed to
+the GPG key fingerprint or other method.  Thus when you set
+<span class="samp">dibsPublicKey</span>, <span class="samp">dibsPrivateKey</span>, etc., you should be doing
+something like
+
+<pre class="example">     dibsPrivateKey = 'emin.dibs@alum.mit.edu'
+</pre>
+   <p>Also, you do not need to put a real email address in the name of the
+key, you can essentially put in whatever name you like.  Thus if you
+have multiple machines running dibs you can have one machine with the
+key name foo.dibs@example.com and another with the key
+bar.dibs@example.com and so on.
+
+<h4 class="subsection">2.3.2 DIBS Commands</h4>
+
+<p>There are a variety of commands for using and configuring DIBS.  All
+commands can be issued either from the command line or from a
+graphical user interface (GUI).  To be complete and precise, this
+manual describes the command line version, but if you wish to use the
+graphical user interface simply use the <span class="samp">dibs.py</span> command with no
+arguments to start the GUI.
+
+<h4 class="subsection">2.3.3 Create An Empty Database</h4>
+
+<p>Issue the command <span class="samp">dibs.py show_database</span>
+
+   <p>Normally, this command would show you the database of peers you can
+exchange files with (which should be empty).  Since this is the first
+time you are using DIBS, this command (actually any command) will
+first create the <span class="samp">~/.dibs</span> directory to hold DIBS related files. 
+On a windows system <span class="samp">~/</span> usually refers to
+<span class="samp">C:\Documents and Settings\&lt;user&gt;</span>.
+
+<h4 class="subsection">2.3.4 Customize Default Parameters</h4>
+
+<p>If your email address is not <span class="samp">$USER@$HOST</span> and/or your GPG key is
+not <span class="samp">$USER.dibs@HOST</span> you will need to tell DIBS about this in the
+file <span class="samp">~/.dibs/dibsrc.py</span>.  In that file put the following:
+
+<pre class="example">     dibsPublicKey = '&lt;your-gpg-key-name&gt;'
+     dibsPrivateKey = '&lt;your-gpg-key-name&gt;'
+     dibsAdmin = '&lt;your-email-address&gt;'
+</pre>
+   <p>Remember to refer to GPG keys by the email address as described in
+<a href="#GPG-Keys-Named-via-Email-Address">GPG Keys Named via Email Address</a>.
+
+   <p>Also, if your gpg program is in a weird place, you may also want to
+put
+
+<pre class="example">     gpgProg = '&lt;path&gt;/&lt;to&gt;/gpg'
+</pre>
+   <p>If your python executable is in a strange place (e.g., if you run
+Windows) or if you have more than one version of python installed
+(e.g., on a Debian or OS X system where you installed a different
+version in addition to the default python installation), you may also
+need to specify the location of the python interpreter via
+
+<pre class="example">     pythonExe = '&lt;path&gt;/&lt;to&gt;/python'
+</pre>
+   <p>Finally, you will probably need to set your outgoing mail server via
+something like
+
+<pre class="example">     smtpServer = 'smtp.&lt;your-isp&gt;.com'
+</pre>
+   <p>See the manual for other customizations that can go in the dibsrc.py
+file.
+
+<h4 class="subsection">2.3.5 Add Peers</h4>
+
+<p>Their are two basic ways to tell DIBS about people or computers with
+whom you want to exchange backup space.  You can either find partners
+yourself and manually import their GPG key and manually enter their
+information using the <span class="samp">add_peer</span> command are you can use the DIBS
+peer finder service with the <span class="samp">post_contract</span> and
+<span class="samp">propose_contract</span> commands.  Ideally, the peer finder service
+should be simpler and easier, but it is currently somewhat experimental. 
+Both methods are discussed below.
+
+<h5 class="subsubsection">2.3.5.1 Using the <span class="samp">add_peer</span> Command</h5>
+
+<p>First, you must import the GPG keys you from people you want to exchange
+files with.  This can be done using <span class="samp">gpg --import</span>.  See the GPG
+documentation for more details.  As described in <a href="#GPG-Keys-Named-via-Email-Address">GPG Keys Named via Email Address</a>, DIBS currently uses the email address for a GPG key as
+the peer name, so when you create a GPG key it is useful to keep this in
+mind.  Please read the description below before creating/importing GPG
+keys for use with DIBS.
+
+   <p>Once you agree to trade files with someone, each of you must add the
+other to the DIBS database using the following command:
+
+<pre class="example">     dibs.py add_peer --email <var>TRUE_EMAIL_ADDRESS</var>
+      --peer <var>DIBS_KEY_FOR_PEER</var> --local_quota <var>L_QUOTA</var>
+      --remote_quota <var>R_QUOTA</var> --comment <var>COMMENT</var>
+      --talk <var>TALK_METHOD</var> --listen <var>LISTEN_METHOD</var>
+      --host <var>HOST</var> --port <var>PORT</var>
+</pre>
+   <p>The arguments have the following meaning:
+     <dl>
+<dt>&bull;<var>TRUE_EMAIL_ADDRESS</var>:<dd>The true email address of the peer.  This is where DIBS sends
+correspondence to.
+
+     <br><dt>&bull;<var>GPG_KEY_FOR_PEER</var>:<dd>The name of the peer's DIBS key.  Specifically, this must be the email
+address for the GPG key not other methods of key identification and not
+the true email address for the peer.
+
+     <br><dt>&bull;<var>L_QUOTA</var>:<dd>This is how much space (in kilo-bytes) you will allow the peer to use on your
+machine.
+
+     <br><dt>&bull;<var>R_QUOTA</var>:<dd>This is how much space (in kilo-bytes) your peer will allow you to use on his
+machine.
+
+     <br><dt>&bull;<var>COMMENT</var>:<dd>A required comment (this can be "none" if you like).
+
+     <br><dt>&bull;<var>TALK_METHOD</var>:<dd>How to send messages to this peer.  This can be either <span class="samp">active</span>,
+<span class="samp">passive</span>.  We recommend using <span class="samp">active</span>, but <span class="samp">passive</span>
+will be required if you or your peer is behind a firewall.  See the
+manual for details.
+
+     <br><dt>&bull;<var>LISTEN_METHOD</var>:<dd>How to receive messages from this peer.  This can be either
+<span class="samp">active</span>, <span class="samp">passive</span>.  We recommend using <span class="samp">active</span>, but
+<span class="samp">passive</span> will be required if you or your peer is behind a
+firewall.  Essentially, the listen method you use is the talk method a
+corresponding peer would use and vice versa.
+
+     <br><dt>&bull;<var>HOST</var>:<dd>The name of the machine which peer operates from.
+
+     <br><dt>&bull;<var>PORT</var>:<dd>The port on <var>HOST</var> to use.  This is an optional parameter with default
+specified in the dibs_options.py or dibsrc.py file.
+
+   </dl>
+
+   <p>For example, if you wanted to trade files with me where I store 1 MB
+for you and you store 5 MB for me you would issue the command
+
+   <p><span class="samp">dibs.py add_peer --email emin@alum.mit.edu --peer
+emin.dibs@alum.mit.edu --local_quota 5000 --remote_quota 1000
+--comment "trade with emin" --talk active --listen active --host martinian.com</span>
+
+   <p>There should be no line breaks in the command above. 
+Notice that my email address is <span class="samp">emin@alum.mit.edu</span>, but my dibs
+key is <span class="samp">emin.dibs@alum.mit.edu</span>, and the machine I plan to run
+dibs on is <span class="samp">martinian.com</span>.
+
+   <p>This will create an entry for the peer in the database (you can verify
+this using the command <span class="samp">dibs show_database</span>).
+
+<h5 class="subsubsection">2.3.5.2 Using the <span class="samp">post_contract</span> and <span class="samp">propose_contract</span> Commands</h5>
+
+<p>An alternative to manually finding a peer and adding the required
+information is to use the new <span class="samp">post_contract</span> and
+<span class="samp">propose_contract</span> commands introduced in version 1.0 of DIBS. 
+Essentially, the <span class="samp">post_contract</span> command allows you to post an
+advertisement on the Internet (or alternatively a private intranet)
+describing the trade parameters you want.  Someone else can then use the
+<span class="samp">propose_contract</span> command to answer your advertisement.  If the
+proposed parameters match your advertisement then your DIBS client and
+your partner's client will automatically exchange the proper information
+such as GPG keys, talk and listen modes, etc.
+
+   <p>These functions are still experimental, however, and so they are
+described in <a href="#Peer-Finder">Peer Finder</a> instead of the install section for now. 
+Users are encouraged to try them out, but those who just want to get
+DIBS working and do not want to fiddle with things may prefer the better
+tested but more tedious <span class="samp">add_peer</span> approach.
+
+<h4 class="subsection">2.3.6 Automated Backup</h4>
+
+<p>To have DIBS automatically back up files or directories, put the
+desired files or directories (or better yet, links to them in
+<span class="samp">~/.dibs/autoBackup</span>).  For example, if you have a UNIX system and want
+to have your <span class="samp">.emacs</span> file and your Mail directory automatically backed
+up you could do
+
+<pre class="example">     cd ~/.dibs/autoBackup
+     ln -s ~/Mail
+     ln -s ~/.emacs
+</pre>
+   <p>Once you start the DIBS daemon (described below), it will periodically
+check everything in <span class="samp">~/.dibs/autoBackup</span> for changes and back them up.
+
+<h4 class="subsection">2.3.7 Running DIBS</h4>
+
+<p>For DIBS to work, you must start the daemon with the command
+
+<pre class="example">     dibs.py start_daemon
+</pre>
+   <p>I recommend starting the daemon inside a screen session if you have
+the screen program installed so that you can view the messages the
+daemon generates.  If you are going to start DIBS in a terminal or
+console that you plan to close and you have a UNIX system,
+you should instead do
+
+<pre class="example">     nohup dibs.py start_daemon &gt; /dev/null &amp;
+</pre>
+   <p>so that DIBS does not die when trying to write to standard out.
+
+   <p>If errors occur, you may need to restart the daemon. 
+the DIBS daemon will periodically send them out to peers to be backed up.
+
+<h4 class="subsection">2.3.8 Preparing for Complete Data Loss</h4>
+
+<p>Finally, in order to recover from complete data loss you need to
+protect two absolutely critical pieces of information: your GPG key
+and the list of peers you trade with.  You can obtain the former by
+exporting it from GPG and the latter from your
+<span class="samp">~/.dibs/dibs_database.peerDatabase</span> file.  So put these two
+pieces of information onto a floppy, CD, or good old fashioned paper
+and store them in a safe place (see the section on
+<a href="#Recovering-Everything">Recovering Everything</a> for more details).
+
+   <p>If you do not store these pieces of information you will still be able
+to recover from isolated damage which does not affect this critical
+data.
+
+<div class="node">
+<p><hr>
+<a name="Peer-Finder"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Using-DIBS">Using DIBS</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Installion-and-Configuration">Installion and Configuration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">3 Peer Finder</h2>
+
+<p>The Peer Finder service is designed to allow people to find trading
+partners.  The basic idea is that you can use the <span class="samp">post_contract</span>
+command to advertise a &ldquo;trading contract&rdquo; describing your terms for
+trading backup space.  Others can then use the <span class="samp">propose_contract</span>
+command to propose a specific contract within the parameters you
+specified.  If your DIBS client finds the proposed contract to be valid
+(i.e., within the paremters you specified with <span class="samp">post_contrat</span>),
+then public keys, email addresses, and other parameters will be
+exchanged between your DIBS client and the peer proposing the contract. 
+In particular, manually issuing <span class="samp">add_peer</span> or <span class="samp">edit_peer</span>
+commands will no longer be required.
+
+   <p>To summarize, the main benefits of the peer finder service are:
+
+     <ul>
+<li>Find peers with whom to exchange backup space.
+
+     <li>Advertise available backup space and desired trading parameters.
+
+     <li>Easier configuration without manually exchange keys, emails, etc.
+
+   </ul>
+
+<h3 class="section">3.1 Posting a Contract</h3>
+
+<p><a name="Posting-a-Contract"></a>
+
+   <p>To post a contract, use the <span class="samp">post_contract</span> command as illustrated
+by the example below:
+
+<pre class="example">     dibs.py post_contract --min_quota 10M --max_quota 30M --quota_mult 2.3
+     --lifetime 86400 --contract_name my_contract
+</pre>
+   <p>This would post an advertisement for a trading agreement where the
+poster wants between 10 and 30 megabytes of storage space as specified
+by <span class="samp">--min_quota</span> and <span class="samp">--max_quota</span>.  The <span class="samp">--quota_mult</span>
+of 2.3 indicates that the poster wants at least 2.3 times more space
+from than he provides.  The <span class="samp">--lifetime</span> value indicates that this
+contract is valid for 86400 seconds (i.e., one day).  After that time
+elapses, it will be automatically removed from the contract server.  The
+optional <span class="samp">--contract_name</span> name argument specifies the name of the
+contract (<span class="samp">my_contract</span> in this example).  Usually, you should not
+explicitly name a contract and let DIBS automatically generate a name. 
+Providing a name can be useful in automated scripts, however.
+
+   <p>The advertisement is posted to the server specified by the
+<span class="samp">defaultContractServerURL</span> in the <span class="samp">dibsrc.py</span> file (if no such
+variable is present then the current default is
+<a href="www.martinian.com:8000/~emin/cgi-bin/peer_finder">www.martinian.com:8000/~emin/cgi-bin/peer_finder</a>.  You can view
+posted contracts from yourself or others by pointing a web browser to
+<a href="www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi">www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi</a>
+(or the value of the <span class="samp">defaultContractServerURL</span> followed by
+<span class="samp">show_contracts.cgi</span> if you are using a different contract server.)
+
+   <p>The <span class="samp">--quota_mult</span> option may seem strange at first.  Why would
+anyone be willing to give more space than they provide?  One
+possibility is donating space to charities.  A worthy organization might
+post a contract either asking for free space or highly discounted
+space.  Another possibility is that some people might have very high
+bandwidth connections, high uptime, or other features which make them
+more desirable trading partners.  By providing <span class="samp">--quota_mult</span> the
+peer finder service allows for a variety of trading relationships.
+
+<h3 class="section">3.2 Cancelling a Contract</h3>
+
+<p>You can cancel a contract that you posted with the
+<span class="samp">unpost_contract</span> command as illustrated below:
+
+<pre class="example">     dibs.py unpost_contract --contract_name <var>NAME</var>
+</pre>
+   <p>where <var>NAME</var> is replaced with the name of the contract you are
+trying to cancel.  The contract name will be shown on the contract
+server <span class="samp">show_contracts.cgi</span> page.  Also, you can find your
+currently posted contracts by using the command
+
+<pre class="example">     dibs.py show_database --only posted_contracts
+</pre>
+   <p>Obviously you cannot unpost contracts posted by others and nobody can
+unpost your contract.  This is accomplished by storing a revocation
+password on in your DIBS database which is told only to the server. 
+Your client will automatically supply the required revocation password
+to the server when unposting.
+
+<h3 class="section">3.3 Responding to a Posted Contract</h3>
+
+<p>Once you have browsed
+<a href="www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi">www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi</a>
+or another contract server site and found a contract you would like to
+enter into, you use the <span class="samp">propose_contract</span>.  The following example
+illustrates how you would respond to the contract posted in
+<a href="#Posting-a-Contract">Posting a Contract</a>.
+
+<pre class="example">     dibs.py propose_contract --local_quota 10M --remote_quota 23M --talk
+     active --listen active --contract_name my_contract
+</pre>
+   <p>The <span class="samp">--local_quota</span>, <span class="samp">--remote_quota</span>, <span class="samp">--talk</span>, and
+<span class="samp">--listen</span> arguments are the parameters which the peer you are
+proposing the contract to would use if he were to use the
+<span class="samp">add_peer</span> command.  This bears repeating: these arguments are from
+the point of view of the peer you are proposing the contract to not from
+your point of view.  Thus the <span class="samp">--local_quota</span> argument specifies
+how much space the peer will give you, the <span class="samp">--remote_quota</span>
+argument specifies how much space the peer will get from you, the
+<span class="samp">--talk</span> argument specifies how the peer will contact your machine,
+and the <span class="samp">--listen</span> argument specifies how your DIBS client will
+contact the peer.
+
+   <p>Once you issue the <span class="samp">propose_contract</span> command, your peer will try
+to contact the poster of the contract.  Thus, the poster should have an
+<span class="samp">active</span> <span class="samp">--listen</span> method otherwise there will be no way for
+your DIBS client to contact the poster's DIBS client!  Assuming that
+your client successfully contacts the poster, the poster will view the
+proposed contract and make a yes or no decision.  The poster will then
+contact the proposer to return the decision and potentially exchange key
+information.
+
+   <p>The simplest case is when both poster and proposer accept direct
+incoming connections and both <span class="samp">--talk</span> and <span class="samp">--listen</span> are
+<span class="samp">active</span>.  Things can still work, however, if the proposer is
+behind a firewall, but in this case, the proposer must issue the
+<span class="samp">poll_passives</span> command followed by the <span class="samp">process_message</span>
+command to get the response from the poster.
+
+   <p>In any case, once the proposed contract is accepted and the proper
+messages are exchanged, both the posting and proposing DIBS client will
+exchange GPG key information, and set up their quotas accordingly
+without the need for explicitly using the <span class="samp">add_peer</span> command.
+
+   <p>As an aside, the above discussion illustrates another reason for the
+<span class="samp">--quota_mult</span> argument in posting a contract.  If your machine
+is available to accept incoming connections then others who are behind
+firewalls can still peer with you.  On the other hand, if your machine
+is behind a firewall and cannot accept incoming connections then you can
+only peer with machines that can accept incoming connections.  This
+would suggest that machines which accept incoming connections should be
+able to &ldquo;charge more&rdquo; for peering than those which cannot accept
+incoming connections.  The <span class="samp">--quota_mult</span> facilitates this.
+
+<h3 class="section">3.4 Running Your Own Peer Finder Service</h3>
+
+<p>If you are running a private DIBS network (e.g., to backup files within
+your company or organization), you might want to run your own peer
+finder service.  To do so, look at the <span class="samp">README</span> file in the
+<span class="samp">src/peer_finder/cgi-bin</span> directory of the DIBS distribution.
+
+   <p>Once the Peer Finder service becomes more stable, more documentation on
+running your own Peer Finder service will be added to the regular
+documentation.
+
+<div class="node">
+<p><hr>
+<a name="Using-DIBS"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Commands">Commands</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Peer-Finder">Peer Finder</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">4 Using DIBS</h2>
+
+<ul class="menu">
+<li><a accesskey="1" href="#The-DIBS-daemon">The DIBS daemon</a>
+<li><a accesskey="2" href="#Automated-Backup">Automated Backup</a>
+<li><a accesskey="3" href="#Manual-Backup">Manual Backup</a>
+<li><a accesskey="4" href="#Recovering-Files">Recovering Files</a>
+<li><a accesskey="5" href="#Recovering-Everything">Recovering Everything</a>
+<li><a accesskey="6" href="#Database-Management">Database Management</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="The-DIBS-daemon"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Automated-Backup">Automated Backup</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-DIBS">Using DIBS</a>
+<br>
+</div>
+
+<h3 class="section">4.1 The DIBS daemon</h3>
+
+<p>The preferred way to use DIBS is by running the DIBS daemon in the
+background.  The daemon listens for and automatically processes
+incoming messages from peers, and automatically backs up any files,
+directories, or links in the directory <span class="file">~/.dibs/autoBackup</span> (or
+whatever you have <a href="#autoBackupDir">autoBackupDir</a> set to).  To start the daemon,
+use the command <span class="samp">dibs start_daemon</span>.  For peers to contact your
+DIBS client, <strong>YOU MUST HAVE THE DIBS DAEMON RUNNING</strong>.
+
+   <p>If you have the <span class="samp">screen</span> program available, the best way to start
+the DIBS daemon is inside a screen session.  That way you can view
+what the daemon is doing inside your screen session.  If you plan to
+run the daemon without a connection to a console (e.g., if you want to
+start the daemon and then close your terminal window) you should
+redirect the output to <span class="file">/dev/null</span>.
+
+<div class="node">
+<p><hr>
+<a name="Automated-Backup"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Manual-Backup">Manual Backup</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#The-DIBS-daemon">The DIBS daemon</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-DIBS">Using DIBS</a>
+<br>
+</div>
+
+<h3 class="section">4.2 Automated Backup</h3>
+
+<p>The simplest way to use DIBS is to put links to any data you want
+backed up in the directory <span class="file">~/.dibs/autoBackup</span> (or whatever you
+have <a href="#autoBackupDir">autoBackupDir</a> set to).  Periodically, the DIBS daemon will
+execute the <a href="#auto_005fcheck">auto_check</a> command which will make DIBS
+incrementally backup your data.  Alternatively, if you want the
+contents of this directory backed up immediately you can issue the
+<a href="#auto_005fcheck">auto_check</a> command manually.
+
+<div class="node">
+<p><hr>
+<a name="Manual-Backup"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Recovering-Files">Recovering Files</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Automated-Backup">Automated Backup</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-DIBS">Using DIBS</a>
+<br>
+</div>
+
+<h3 class="section">4.3 Manual Backup</h3>
+
+<p>If you want to backup a particular file or directory, or write
+scripts to use DIBS for more sophisticated backup use the
+<a href="#store">store</a> command.  For example, to backup everything in your mail
+directory you would do
+<pre class="example">     dibs.py store --name mail
+</pre>
+   <p>This will cause DIBS to recursively traverse <span class="samp">mail</span> and incrementally
+store any files it encounters.  In this context, incrementally means that
+a file is only sent to peers if no previous backup exists or if the
+previous backup differs from the current version of the file.
+
+   <p>If you want to backup the same data under different names you can use the
+<span class="samp">--as</span> option to the <span class="samp">store</span> command.  For example, on a UNIX system you could set up a CRON job to execute the following command every day:
+<pre class="example">     dibs.py store --name mail --as mail.`date +%a`
+</pre>
+   <p>This would cause dibs to have seven versions of the directory
+<span class="samp">mail</span> backed up: mail.Mon, mail.Tue, etc.  Each day of the week,
+DIBS would compare the mail directory to the backup it made one week
+ago and re-backup any new files or files which have changed.
+
+<div class="node">
+<p><hr>
+<a name="Recovering-Files"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Recovering-Everything">Recovering Everything</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Manual-Backup">Manual Backup</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-DIBS">Using DIBS</a>
+<br>
+</div>
+
+<h3 class="section">4.4 Recovering Files</h3>
+
+<p>You can recover a file with the command
+<pre class="example">     dibs.py recover_file --file <var>FILENAME</var>
+</pre>
+   <p>Note that <var>FILENAME</var> must correspond to the name which you stored
+the file as.  The <a href="#auto_005fcheck">auto_check</a> command stores data with the root
+obtained by concatenating the <span class="samp">rootDir</span> variable with the
+<span class="samp">autoBackup</span> variable.  On UNIX, the <span class="samp">rootDir</span> variable
+defaults to <span class="samp">/</span>.  So, on a UNIX system, if you want to recover
+the file foo stored in <span class="file">~/.dibs/autoBackup</span> (or whatever you have
+<a href="#autoBackupDir">autoBackupDir</a> set to), you would use the command
+<pre class="example">     dibs.py recover_file --file /autoBackup/foo
+</pre>
+   <p>This begins the recovery procedure.  DIBS will email you when the file
+is fully recovered unless you have set the value of
+<a href="#mailUserOnRecovery">mailUserOnRecovery</a> to 0.
+
+<div class="node">
+<p><hr>
+<a name="Recovering-Everything"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Database-Management">Database Management</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Recovering-Files">Recovering Files</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-DIBS">Using DIBS</a>
+<br>
+</div>
+
+<h3 class="section">4.5 Recovering Everything</h3>
+
+<p>If you suffer a major data loss you probably do not want to go through
+the tedious process of recovering every file individually.  To recover everything all at once, you can use the command
+<pre class="example">     dibs.py recover_all
+</pre>
+   <p>This causes DIBS to send a <span class="samp">RECOVER_ALL</span> message to all peers
+asking them to send back everything.
+
+   <p>A major feature of the <span class="samp">recover_all</span> command is that it only
+requires the list of peers you are trading data with and does not need
+the rest of the database.  Thus if you have the
+<span class="samp">dibs_database.peerDatabase</span> (either stored in <span class="samp">~/.dibs</span> or
+wherever the <a href="#DIBS_005fDIR">DIBS_DIR</a> variable points to) and your GPG key, you
+can use the recover_all command to recover from complete data loss.
+
+   <p>At first it may seem like the requirement of keeping your
+<span class="samp">dibs_database.peerDatabase</span> and your GPG key safe defeat the
+purpose of automated backup.  After all if you had secure file storage
+in the first place, why would you need DIBS?  The answer is that these
+two pieces of information take very little room and do not change
+often.  Thus it is quite feasible to save your
+<span class="samp">dibs_database.peerDatabase</span> and GPG key to a floppy, CD, or even
+paper, and then put this information in a safe place (e.g., a friend's
+house, a safe deposit box, or in a fireproof safe in your basement).
+
+<div class="node">
+<p><hr>
+<a name="Database-Management"></a>Previous:&nbsp;<a rel="previous" accesskey="p" href="#Recovering-Everything">Recovering Everything</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Using-DIBS">Using DIBS</a>
+<br>
+</div>
+
+<h3 class="section">4.6 Database Management</h3>
+
+<p>If you want to clear out all the files other peers are storing for
+you, you can execute the command
+
+   <p><span class="samp">dibs.py clear</span>
+
+   <p>This tells all peers to stop storing files for you.  It is especially
+useful if DIBS gets into a weird state due to errors.
+
+   <p>Note that issuing the clear command only tells peers to stop storing
+stuff for <strong>YOU</strong>, but doesn't make your DIBS client stop storing
+stuff for them.  If you want to drop all the storage for a particular
+peer, you can use the <a href="#forget">forget</a> command.  See the documentation for
+<a href="#clear">clear</a>, <a href="#forget">forget</a>, <a href="#edit_005fpeer">edit_peer</a>, and <a href="#delete_005fpeer">delete_peer</a> for
+more information.
+
+<div class="node">
+<p><hr>
+<a name="Commands"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Options">Options</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Using-DIBS">Using DIBS</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">5 Commands</h2>
+
+<p>DIBS commands can all be issued in either of two ways: through the
+command line or through the graphical user interface (GUI), which can
+be started by issuing the <span class="samp">dibs.py</span> command with no arguments. 
+To be complete and precise, this manual describes the command line
+version.
+
+   <p>On the command line, DIBS commands are issued using the following syntax:
+
+   <p><code>dibs </code><var>ARGNAME1</var> <var>ARGVAL1</var> <var>ARGNAME2</var> <var>ARGVAL2</var><code> ...</code>
+
+   <p>where <var>ARGNAME1</var> is an argument name starting with <span class="samp">--</span> and
+<var>ARGVAL1</var> is the corresponding argument value.  For example, to
+store the file <span class="file">~/foo/bar.txt</span> the following syntax would be used
+
+<pre class="example">     dibs.py store --name ~/foo/bar.txt
+</pre>
+   <p>This rest of this section describes the commands available in DIBS. 
+Optional arguments are enclosed in brackets.
+
+<!-- Use texinfo-all-menus-update to update the menu. -->
+<!-- Use texinfo-every-node-update to update the nodes. -->
+<!-- After calling texinfo-every-node-update make sure -->
+<!-- to set the last two args for the first @node command -->
+<!-- to ``Commands'' and set the last arg for every other -->
+<!-- @node command to ``Commands''.  You can do the latter -->
+<!-- using the following macro: -->
+<!-- (fset 'insert-commands-for-up-field -->
+<!-- "\C-s@node\C-e, Commands") -->
+<ul class="menu">
+<li><a accesskey="1" href="#add_005fpeer">add_peer</a>
+<li><a accesskey="2" href="#delete_005fpeer">delete_peer</a>
+<li><a accesskey="3" href="#edit_005fpeer">edit_peer</a>
+<li><a accesskey="4" href="#start_005fdaemon">start_daemon</a>
+<li><a accesskey="5" href="#stop_005fdaemon">stop_daemon</a>
+<li><a accesskey="6" href="#forget">forget</a>
+<li><a accesskey="7" href="#auto_005fcheck">auto_check</a>
+<li><a accesskey="8" href="#clear">clear</a>
+<li><a accesskey="9" href="#store">store</a>
+<li><a href="#unstore_005ffile">unstore_file</a>
+<li><a href="#recover_005ffile">recover_file</a>
+<li><a href="#recover_005fall">recover_all</a>
+<li><a href="#show_005fdatabase">show_database</a>
+<li><a href="#cleanup">cleanup</a>
+<li><a href="#poll_005fpassives">poll_passives</a>
+<li><a href="#probe">probe</a>
+<li><a href="#process_005fmessage">process_message</a>
+<li><a href="#send_005fmessage">send_message</a>
+<li><a href="#send_005fhello">send_hello</a>
+<li><a href="#merge_005fstats">merge_stats</a>
+<li><a href="#post_005fcontract">post_contract</a>
+<li><a href="#unpost_005fcontract">unpost_contract</a>
+<li><a href="#propose_005fcontract">propose_contract</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="add_005fpeer"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#delete_005fpeer">delete_peer</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Commands">Commands</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.1 add_peer</h5>
+
+<p><a name="index-add_005fpeer-1"></a><code>dibs.py add_peer --peer </code><var>PEER</var><code> --email </code><var>EMAIL</var><code>
+ --remote_quota </code><var>REMOTE_QUOTA</var><code> --local_quota </code><var>LOCAL_QUOTA</var><code>
+ --comment  </code><var>COMMENT</var><code> --talk </code><var>TALK</var><code> --host </code><var>HOST</var><code>
+ [ --port </code><var>PORT</var><code> ]</code>
+
+     <dl>
+<dt><code>--peer </code><var>PEER</var><dd>Name of the GPG key for the peer specified as the email address of the
+GPG key.
+
+     <br><dt><code>--email </code><var>EMAIL</var><dd>Email address of the peer.  Messages are sent to this address on certain
+types of errors.
+
+     <br><dt><code>--remote_quota </code><var>REMOTE_QUOTA</var><dd>Amount of space in kilo-bytes that the peer will allow your client.
+
+     <br><dt><code>--local_quota </code><var>LOCAL_QUOTA</var><dd>Amount of space in kilo-bytes that you will allow the peer on your
+client.
+
+     <br><dt><code>--talk </code><var>TALK</var><dd>This must be one of <span class="samp">active</span>, <span class="samp">passive</span>, or <span class="samp">mail</span> and
+specifies how your client will communicate to the peer
+See <a href="#Flexible-Communication-Modes">Flexible Communication Modes</a>.  If you can
+directly connect to your peer (e.g.,
+there are no intervening firewalls), then you should probably use
+<span class="samp">active</span> mode.
+
+     <br><dt><code>--listen </code><var>LISTEN</var><dd>This must be one of <span class="samp">active</span>, <span class="samp">passive</span>, or <span class="samp">mail</span> and
+specifies how your client will receive communication from the peer
+See <a href="#Flexible-Communication-Modes">Flexible Communication Modes</a>.  If your peer can directly connect
+to you peer (e.g.,
+there are no intervening firewalls), then you should probably use
+<span class="samp">active</span> mode.
+
+     <br><dt><code>--host </code><var>HOST</var><dd>This specifies the name or IP address of the peer's host.
+
+     <br><dt><code>--comment </code><var>COMMENT</var><dd>This specifies a string which serves as a comment for the peer.
+
+     <br><dt><code>--port </code><var>PORT</var><dd>This specifies the port the peer will listen on for direct connections. 
+It is only used if <var>TALK</var> is <span class="samp">active</span>. 
+This is an optional argument, with a default value of 6363.
+
+   </dl>
+
+   <p>The add_peer command is used to create an entry in the database for
+trading files with a peer.  For example, if you wanted to trade files
+with me where I store 1 MB for you and you store 5 MB for me you would
+issue the command:
+
+   <p><span class="samp">dibs.py add_peer --email emin@allegro.mit.edu --peer
+emin.dibs@alum.mit.edu --local_quota 5000 --remote_quota 1000
+--comment "trade with emin" --talk active --listen active --host martinian.com</span>
+
+   <p>A <span class="samp">k</span>, <span class="samp">m</span>, <span class="samp">g</span>, or, <span class="samp">t</span> can be appended to a quota
+indicating that the number should interpreted as kilo-bytes (the default
+if no letter is appended), mega-bytes, giga-bytes, or tera-bytes.  For
+example, the <span class="samp">--local_quota 5000</span> in the example above could be
+replaced by <span class="samp">--local_quota 5M</span> NOT <span class="samp">--local_quota 5K</span>.
+
+<div class="node">
+<p><hr>
+<a name="delete_005fpeer"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#edit_005fpeer">edit_peer</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#add_005fpeer">add_peer</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.2 delete_peer</h5>
+
+<p><a name="index-delete_005fpeer-2"></a><code>dibs.py delete_peer --peer </code><var>PEER</var>
+     <dl>
+<dt><code>--peer </code><var>PEER</var><dd>Specifies the peer to delete. 
+</dl>
+
+   <p>This command removes <var>PEER</var> from your database and sends an email
+to the email address associated with <var>PEER</var> to this effect.  This
+command can only be executed if you are not storing anything for
+<var>PEER</var> and <var>PEER</var> is not storing anything for you
+(see <a href="#forget">forget</a>, <a href="#clear">clear</a>).
+
+<div class="node">
+<p><hr>
+<a name="edit_005fpeer"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#start_005fdaemon">start_daemon</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#delete_005fpeer">delete_peer</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.3 edit_peer</h5>
+
+<p><a name="index-edit_005fpeer-3"></a><code>dibs.py edit_peer --peer </code><var>PEER</var><code>
+ [ --email </code><var>EMAIL</var><code> ]
+ [ --remote_quota </code><var>REMOTE_QUOTA</var><code> ]
+ [ --local_quota </code><var>LOCAL_QUOTA</var><code> ]
+ [ --comment  </code><var>COMMENT</var><code> ]
+ [ --talk </code><var>TALK</var><code> ]
+ [ --host </code><var>HOST</var><code> ]
+ [ --port </code><var>PORT</var><code> ]</code>
+
+   <p>See <a href="#add_005fpeer">add_peer</a> for a description of the arguments. 
+This command changes the value of one or more entries for <var>PEER</var>. 
+It is an error to decrease <var>REMOTE_QUOTA</var> or <var>LOCAL_QUOTA</var>
+below the respective storage amount.  The current storage amount can be
+seen via <a href="#add_005fpeer">add_peer</a>.
+
+<div class="node">
+<p><hr>
+<a name="start_005fdaemon"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#forget">forget</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#edit_005fpeer">edit_peer</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.4 start_daemon</h5>
+
+<p><a name="index-start_005fdaemon-4"></a><code>dibs.py start_daemon </code>
+
+   <p>This command starts the DIBS daemon.
+
+   <p>The daemon must be running for
+DIBS to automatically send and respond to messages from peers and to
+automatically backup the data you place in the directory named by the
+<a href="#autoBackupDir">autoBackupDir</a> option.  For more information about the DIBS
+daemon, See <a href="#The-DIBS-daemon">The DIBS daemon</a>.
+
+<div class="node">
+<p><hr>
+<a name="forget"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#stop_005fdaemon">stop_daemon</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#start_005fdaemon">start_daemon</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.5 forget</h5>
+
+<p><a name="index-forget-5"></a><code>dibs.py forget --peer </code><var>PEER</var>
+     <dl>
+<dt><code>--peer </code><var>PEER</var><dd>Name of the peer to forget. 
+</dl>
+
+   <p>This command forgets all the files stored for <var>PEER</var> on the local
+machine and sends a message to <var>PEER</var> about this.  The forget
+command is useful if you want to decrease the amount of storage
+allocated to <var>PEER</var>, terminate your relationship with peer
+(see <a href="#delete_005fpeer">delete_peer</a>), or if your DIBS database gets into a weird state.
+
+   <p>Since this command informs <var>PEER</var> that files are being forgotten,
+the database of <var>PEER</var> will be properly synchronized (i.e., the
+database of <var>PEER</var> will indicate that you are not storing any files
+for <var>PEER</var>).
+
+<div class="node">
+<p><hr>
+<a name="stop_005fdaemon"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#auto_005fcheck">auto_check</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#forget">forget</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.6 stop_daemon</h5>
+
+<p><a name="index-stop_005fdaemon-6"></a><code>dibs.py stop_daemon </code>
+
+   <p>This command asks the daemon on the local machine (IP address
+127.0.0.1) listening at the port specified by the <span class="samp">daemonPort</span>
+variable to stop immediately.
+
+<div class="node">
+<p><hr>
+<a name="auto_005fcheck"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#clear">clear</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#stop_005fdaemon">stop_daemon</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.7 auto_check</h5>
+
+<p><a name="index-auto_005fcheck-7"></a><code>dibs.py auto_check </code>
+
+   <p>This command checks files in the auto backup directory <a href="#autoBackupDir">autoBackupDir</a>
+and backs up any new files or files that have changed.
+
+<div class="node">
+<p><hr>
+<a name="clear"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#store">store</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#auto_005fcheck">auto_check</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.8 clear</h5>
+
+<p><a name="index-clear-8"></a><code>dibs.py clear </code>
+This command sends unstore requests to peers to unstore all the files
+stored by your client.
+
+<div class="node">
+<p><hr>
+<a name="store"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#unstore_005ffile">unstore_file</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#clear">clear</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.9 store</h5>
+
+<p><a name="index-store-9"></a><code>dibs.py store --name </code><var>ITEM</var><code> [ --as </code><var>SNAME</var><code> ]</code>
+
+     <dl>
+<dt><code>--name </code><var>ITEM</var><dd>This specifies the path of the file or directory to store.
+
+     <br><dt><code>--as </code><var>SNAME</var><dd>This specifies what name to store <var>ITEM</var> under.  If
+omitted, <var>SNAME</var> defaults to <var>ITEM</var>.
+
+   </dl>
+
+   <p>This
+command causes DIBS to (incrementally) store the file or directory
+with peers.  If a directory is given, its contents are recursively
+stored.  If a file which is already stored is encountered and it is
+unchanged, nothing happens.  If an already stored file is encountered
+and the backed up version is different than the current version, the
+old version is unstored and the new version is backed up in its place.
+
+<div class="node">
+<p><hr>
+<a name="unstore_005ffile"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#recover_005ffile">recover_file</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#store">store</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.10 unstore_file</h5>
+
+<p><a name="index-unstore_005ffile-10"></a><code>dibs.py unstore_file --file </code><var>FILENAME</var>
+     <dl>
+<dt><code>--file </code><var>FILENAME</var><dd>Specifies the name of the file to unstore. 
+</dl>
+
+   <p>This command causes DIBS to ask peers to unstore the named file. 
+Note that if an item was stored via
+<pre class="example">     dibs.py store --file foo --as bar
+</pre>
+   <p>it should be unstored via
+<pre class="example">     dibs.py unstore_file --file bar.
+</pre>
+   <div class="node">
+<p><hr>
+<a name="recover_005ffile"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#recover_005fall">recover_all</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#unstore_005ffile">unstore_file</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.11 recover_file</h5>
+
+<p><a name="index-recover_005ffile-11"></a><code>dibs.py recover_file --file </code><var>FILENAME</var>
+
+     <dl>
+<dt><code>--file </code><var>FILENAME</var><dd>Specifies the name of the file to recover. 
+</dl>
+
+   <p>Ask peers to send us pieces of <var>FILENAME</var> which they are storing. 
+Note that if an item was stored via
+<pre class="example">     dibs.py store --file foo --as bar
+</pre>
+   <p>it should be recovered via
+<pre class="example">     dibs.py recover_file --file bar.
+</pre>
+   <div class="node">
+<p><hr>
+<a name="recover_005fall"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#show_005fdatabase">show_database</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#recover_005ffile">recover_file</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.12 recover_all</h5>
+
+<p><a name="index-recover_005fall-12"></a><code>dibs.py recover_all </code>
+
+   <p>This command asks all peers to send back everything they are storing. 
+This command can be used to recover from complete data loss.  See
+<a href="#Recovering-Everything">Recovering Everything</a> for more details.
+
+<div class="node">
+<p><hr>
+<a name="show_005fdatabase"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#cleanup">cleanup</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#recover_005fall">recover_all</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.13 show_database</h5>
+
+<p><a name="index-show_005fdatabase-13"></a><code>dibs.py show_database [ --only </code><var>WHICH</var><code> ]</code>
+
+   <p>This command prints a representation of the DIBS database.  If the
+optional <span class="samp">--only</span> option is used with <var>WHICH</var> being one of
+<span class="samp">peers</span>, <span class="samp">files</span>, <span class="samp">stats</span>, or <span class="samp">recovery</span>,
+<span class="samp">probe</span>, <span class="samp">storage</span>, <span class="samp">posted_contracts</span>,
+<span class="samp">proposed_contracts</span>,  then only the indicated portion of the
+database is printed.  For example, the command
+<pre class="example">     dibs.py show_database --only peers
+</pre>
+   <p>would display only the peers in the database and not the files or
+recovery status.
+
+<div class="node">
+<p><hr>
+<a name="cleanup"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#poll_005fpassives">poll_passives</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#show_005fdatabase">show_database</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.14 cleanup</h5>
+
+<p><a name="index-cleanup-14"></a><code>dibs.py cleanup </code>
+Cleanup empty files and directories.  Use this after you use this after
+calling <a href="#forget">forget</a>, after a peer issues the uses the <a href="#clear">clear</a>
+command, or every once in a while to keep things clean and efficient.
+
+   <p>DIBS keeps the data your are storing for peers in a tree of
+directories.  Since the file name for a piece of data is determined by
+the MD5 hash of the data, a file name might look like
+<span class="samp">380b90f17c9c908d0e59cf0fb1c8e461</span>.  This file would be stored in
+the path
+<span class="file">DIBS_DIR/&lt;peer&gt;/3/8/0/b/380b90f17c9c908d0e59cf0fb1c8e461</span>. 
+Once you stop storing this piece of data the directory
+<span class="samp">DIBS_DIR/&lt;peer&gt;/3/8/0/b/</span> still remains.  The
+cleanup command goes through your DIBS directory and removes such
+directories which no longer contain any files.
+
+<div class="node">
+<p><hr>
+<a name="poll_005fpassives"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#probe">probe</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#cleanup">cleanup</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.15 poll_passives</h5>
+
+<p><a name="index-poll_005fpassives-15"></a><code>dibs.py poll_passives </code>
+Poll any peers who are passive (i.e., can not connect to us directly). 
+If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+<div class="node">
+<p><hr>
+<a name="probe"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#process_005fmessage">process_message</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#poll_005fpassives">poll_passives</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.16 probe</h5>
+
+<p><a name="index-probe-16"></a><code>dibs.py probe [ --file </code><var>FILENAME</var><code> ]</code>
+
+   <p>Ask all peers
+storing a file to verify that they are actually storing it.  With no
+arguments, this command probes a random file.  This command is called
+automatically (with no arguments) by the daemon started via
+<a href="#start_005fdaemon">start_daemon</a>.
+
+<div class="node">
+<p><hr>
+<a name="process_005fmessage"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#send_005fmessage">send_message</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#probe">probe</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.17 process_message</h5>
+
+<p><a name="index-process_005fmessage-17"></a><code>dibs.py process_message [ --file </code><var>FILENAME</var><code> ] </code>
+
+     <dl>
+<dt><code>--file </code><var>FILENAME</var><dd>This optional argument specifies the name of a file containing a DIBS
+protocol message to be processed. 
+</dl>
+
+   <p>This command reads the DIBS protocol
+message in <var>FILENAME</var> and takes the appropriate actions.  If no
+argument is provided then all messages in the incoming directory are
+processed.
+
+   <p>If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+<div class="node">
+<p><hr>
+<a name="send_005fmessage"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#send_005fhello">send_hello</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#process_005fmessage">process_message</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.18 send_message</h5>
+
+<p><a name="index-send_005fmessage-18"></a><code>dibs.py send_message [ --file </code><var>FILENAME</var><code> --peer
+</code><var>PEER</var><code>  ]</code>
+
+     <dl>
+<dt><code>--file </code><var>FILENAME</var><dd>This optional argument specifies the name of a file containing a DIBS
+protocol message to be sent.
+
+     <br><dt><code>--peer </code><var>PEER</var><dd>This optional argument specifies who to send <var>FILENAME</var> to. 
+</dl>
+
+   <p>This command reads the DIBS protocol
+message in <var>FILENAME</var> sends it to <var>PEER</var>.  If no
+argument is provided then all messages in the outgoing directory are
+sent to the appropriate peers.
+
+   <p>If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+<div class="node">
+<p><hr>
+<a name="send_005fhello"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#merge_005fstats">merge_stats</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#send_005fmessage">send_message</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.19 send_hello</h5>
+
+<p><a name="index-send_005fhello-19"></a><code>dibs.py send_hello --host </code><var>HOST</var><code> --port </code><var>PORT</var>
+
+     <dl>
+<dt><code>--host </code><var>HOST</var><dd>Specifies the host to contact.
+
+     <br><dt><code>--port </code><var>PORT</var><dd>Specifies the port to use. 
+</dl>
+
+   <p>This command sends a hello message to the DIBS daemon listening on the
+specified machine to check if the peer is alive.  The recipient should
+respond with a message listing the version of DIBS it is running.
+
+<div class="node">
+<p><hr>
+<a name="merge_005fstats"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#post_005fcontract">post_contract</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#send_005fhello">send_hello</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.20 merge_stats</h5>
+
+<p><a name="index-merge_005fstats-20"></a><code>dibs.py merge_stats </code>
+
+   <p>This command merges all the statistics records in the statistics
+directory into the database.  The <a href="#show_005fdatabase">show_database</a> command can be
+used to see the current statistics.
+
+<div class="node">
+<p><hr>
+<a name="post_005fcontract"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#unpost_005fcontract">unpost_contract</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#merge_005fstats">merge_stats</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.21 post_contract</h5>
+
+<p><a name="index-post_005fcontract-21"></a><code>dibs.py post_contract --min_quota </code><var>MIN_QUOTA</var><code>
+        --max_quota </code><var>MAX_QUOTA</var><code>
+        --quota_mult </code><var>QUOTA_MULT</var><code>
+        --lifetime </code><var>LIFETIME</var><code>
+        [ --talk </code><var>TALK</var><code> ]
+        [ --listen </code><var>LISTEN</var><code> ]
+        [ --contract_name </code><var>CONTRACT_NAME</var><code> ]
+        [ --url </code><var>URL</var><code> ]
+        [ --host </code><var>HOST</var><code> ]
+        [ --port </code><var>PORT</var><code> ]</code>
+
+     <dl>
+<dt><code>--min_quota </code><var>MIN_QUOTA</var><dd>The minimum quota the poster wants a potential peer to provide.  By
+default, space is specified in kilo-bytes as for <a href="#add_005fpeer">add_peer</a>, but
+<span class="samp">m</span>, <span class="samp">g</span>, or <span class="samp">t</span> can be appended to a number to indicate
+megabytes, gigabytes, or terabytes.
+
+     <br><dt><code>--max_quota </code><var>MAX_QUOTA</var><dd>The maximum quota the poster wants a potential peer to provide specified
+in the format as for <var>MIN_QUOTA</var>.
+
+     <br><dt><code>--quota_mult </code><var>QUOTA_MULT</var><dd>The minimum ratio of space which the potential peer will provide to the
+space the potential peer will receive in return from the poster.
+
+     <br><dt><code>--lifetime </code><var>LIFETIME</var><dd>The amount of time (in seconds) the contract will remain on the contract
+server.  After this amount of time has passed, the contract server may
+delete the posted contract.
+
+     <br><dt><code>--talk </code><var>TALK</var><dd>Must be one of <span class="samp">active</span>, <span class="samp">passive</span>, or <span class="samp">any</span> and
+specifies the talk mode the poster will use in communicating with the
+potential peer if the contract is accepted.
+
+     <br><dt><code>--listen </code><var>LISTEN</var><dd>Must be one of <span class="samp">active</span>, <span class="samp">passive</span>, or <span class="samp">any</span> and
+specifies the listen mode the poster will use receiving communications from the
+potential peer if the contract is accepted.
+
+     <br><dt><code>--contract_name </code><var>CONTRACT_NAME</var><dd>Specifies a name for the contract.  By default, a name is automatically
+generated for each contract.  Usually using the default name is best and
+there is no need to explicitly specify a name.  Occasions where you
+would want to explicitly specify a name include if you want to be able
+to ask a friend or associate to respond to a particular contract you
+posted specifically for him or if you are using DIBS in automated
+scripts.
+
+     <br><dt><code>--url </code><var>URL</var><dd>The URL to post the contract to.  If no URL is provided then the value
+of the <span class="samp">defaultContractServerURL</span> will be used.  Also, <code>--url
+none</code> is specified then the contract is not posted to any contract
+server.  Using the <span class="samp">post_contract</span> command and not posting the
+contract to any URL is pointless, but this can be useful for testing
+purposes.
+
+     <br><dt><code>--host </code><var>HOST</var><dd>The host name of the poster's DIBS client.  By default, this is obtained
+from the <a href="#hostname">hostname</a> variable and should not need to be specified on
+the command line except in special situations.
+
+     <br><dt><code>--port </code><var>PORT</var><dd>The port where the poster's DIBS daemon will be listening for
+connections.  By defualt, this is obtained from the <a href="#daemonPort">daemonPort</a>
+variable and should not need to specified on the command line except in
+special situations. 
+</dl>
+
+   <p>The <span class="samp">post_contract</span> command posts an advertisement for a trading
+contract to a server (see <a href="#Peer-Finder">Peer Finder</a>).  Someone else can then
+propose a specific contract matching the posted parameters using the
+<span class="samp">propose_contract</span> command.  If the contract is accepted, then GPG
+keys are exchanged and the appropriate modifications are made to the
+database of the poster and proposer without the need to manually use the
+<span class="samp">add_peer</span> or <span class="samp">edit_peer</span> commands.
+
+<div class="node">
+<p><hr>
+<a name="unpost_005fcontract"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#propose_005fcontract">propose_contract</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#post_005fcontract">post_contract</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.22 unpost_contract</h5>
+
+<p><a name="index-unpost_005fcontract-22"></a><code>dibs.py unpost_contract --contract_name </code><var>CONTRACT_NAME</var><code>
+        [ --url </code><var>URL</var><code> ]</code>
+
+   <p>This command unposts the contract
+with name <var>CONTRACT_NAME</var> previously posted with
+<a href="#post_005fcontract">post_contract</a>.  By default, the URL to unpost from is obtained
+from the <a href="#defaultContractServerURL">defaultContractServerURL</a> variable and should not need to
+be specified.
+
+   <p>Also, if <code>--url none</code> is specified then the named contract is
+removed from the DIBS database but the contract server is not contacted. 
+Generally this would be a bad idea, but it can be useful if contract
+server has removed (or never received) the contract in question and you
+now want to remove the contract from your DIBS database.
+
+<div class="node">
+<p><hr>
+<a name="propose_005fcontract"></a>Previous:&nbsp;<a rel="previous" accesskey="p" href="#unpost_005fcontract">unpost_contract</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Commands">Commands</a>
+<br>
+</div>
+
+<h5 class="subsubsection">5.0.0.23 propose_contract</h5>
+
+<p><a name="index-propose_005fcontract-23"></a><code>dibs.py propose_contract --contract_name </code><var>CONTRACT_NAME</var><code>
+        --local_quota </code><var>LOCAL_QUOTA</var><code>
+        --remote_quota </code><var>REMOTE_QUOTA</var><code>
+        [ --talk </code><var>TALK</var><code> ]
+        [ --listen </code><var>LISTEN</var><code> ]
+        [ --host </code><var>HOST</var><code> ]
+        [ --peer </code><var>PEER</var><code> ]
+        [ --url </code><var>URL</var><code> ]
+        [ --peer_host </code><var>PEER_HOST</var><code> ]
+        [ --peer_port </code><var>PEER_PORT</var><code> ]
+        [ --peer_email </code><var>PEER_EMAIL</var><code> ]</code>
+
+   <p>Before describing the arguments, we point out that all the arguments that
+do <em>not</em> start with <span class="samp">--peer_</span> are from the point of view of
+the peer <em>not</em> the poster.
+
+     <dl>
+<dt><code>--contract_name </code><var>CONTRACT_NAME</var><dd>Name of the contract the proposer is responding to.  This should be the
+name displayed on the peer finder service the contract is posted on.
+
+     <br><dt><code>--local_quota </code><var>LOCAL_QUOTA</var><dd>Amount of space the poster will allow for the proposer, i.e., this is
+equivalent to what the poster would enter as the <span class="samp">--local_quota</span>
+argument if he were to use the <span class="samp">add_peer</span> command to implement the
+proposed contract.
+
+     <br><dt><code>--remote_quota </code><var>REMOTE_QUOTA</var><dd>Amount of space the proposer will get from the poster, i.e., this is
+equivalent to what the poster would enter as the <span class="samp">--local_quota</span>
+argument if he were to use the <span class="samp">add_peer</span> command to implement the
+proposed contract.
+
+     <br><dt><code>[ --talk </code><var>TALK</var><code> ]</code><dd>The method the poster should use to communicate to the proposer, i.e.,
+this is equivalent to what the poster would enter as the <span class="samp">--talk</span>
+argument if he were to use the <span class="samp">add_peer</span> command to implement the
+proposed contract.  If this is not provided, then it is obtained from
+the posted contract.
+
+     <br><dt><code>[ --listen </code><var>LISTEN</var><code> ]</code><dd>The method the proposer will use to communicate to the poster, i.e.,
+this is equivalent to what the poster would enter as the <span class="samp">--listen</span>
+argument if he were to use the <span class="samp">add_peer</span> command to implement the
+proposed contract.  If this is not provided, then it is obtained from
+the posted contract.
+
+     <br><dt><code>[ --host </code><var>HOST</var><code> ]</code><dd>The name of the machine for the proposer's DIBS client, i.e.,
+this is equivalent to what the poster would enter as the <span class="samp">--host</span>
+argument if he were to use the <span class="samp">add_peer</span> command to implement the
+proposed contract.  Usually this is obtained from the contract and
+should not be specified.
+
+     <br><dt><code>[ --peer </code><var>PEER</var><code> ]</code><dd>The name of the GPG key for the peer, i.e.,
+this is equivalent to what the poster would enter as the <span class="samp">--peer</span>
+argument if he were to use the <span class="samp">add_peer</span> command to implement the
+proposed contract.  Usually this is obtained from the contract and
+should not be specified.
+
+     <br><dt><code>[ --url </code><var>URL</var><code> ]</code><dd>The URL to use to obtain contract information for <var>CONTRACT_NAME</var>. 
+By default, <var>defaultContractServerURL</var> is used.
+
+     <br><dt><code>[ --peer_host </code><var>PEER_HOST</var><code> ]</code><dd>The name of the host for the poster's DIBS client.  Usually, this is
+obtained form the posted contract information and should not need to be
+specified directly.
+
+     <br><dt><code>[ --peer_port </code><var>PEER_PORT</var><code> ]</code><dd>The port where the poster's DIBS client listens for incoming
+connections.  Usually, this is obtained form the posted contract
+information and should not need to be specified directly.
+
+     <p>[ &ndash;peer_email <var>PEER_EMAIL</var> ] The email address to use in
+contacting the poster.  Usually, this is obtained form the posted
+contract information and should not need to be specified directly.
+
+   </dl>
+
+   <p>The <span class="samp">propose_contract</span> command proposes a specific contract within
+the parameters of the posted contract specified by <var>CONTRACT_NAME</var>. 
+Specifically, if the poster accepts incoming connections, the proposer's
+DIBS client will attempt to contact the poster.
+
+   <p>Once contacted, the poster will examine the proposed contract and
+respond with an automated email to the proposer describing its decision. 
+If the proposed contract is accepted by the poster, then the poster will
+attempt to contact the proposer's DIBS client to exchange GPG keys, and
+enter the trading relationship in each client's database.
+
+   <p>Thus if both poster and proposer accept incoming connections, the
+trading relationship should be automatically established and trading
+will commence as usual.  If either the poster or proposer is behind a
+firewall and requires passive mode, things are more complicated.
+
+   <p>If the proposer is behind a firewall and cannot accept incoming
+connections, then it will not be able to obtain the poster's response to
+a proposal until it issues a <span class="samp">poll_passives</span> command and followed
+by a <span class="samp">process_message</span> command to the poster.  The DIBS daemon
+should eventually do this automatically, but the impatient user may wish
+to manually issue these commands after a contract is proposed.
+
+   <p>If the poster is behind a firewall and cannot accept incoming
+connections, then things are even more complicated.  In this case, there
+is no way that the proposer can contact the poster to initiate a
+proposal.  Thus, posting a contract for a DIBS client which cannot
+accept incoming connections because it is behind a firewall is generally
+not a good idea.
+
+<div class="node">
+<p><hr>
+<a name="Options"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Automated-Testing">Automated Testing</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Commands">Commands</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">6 Options</h2>
+
+<p>DIBS has a number of options which you can configure using the
+<span class="file">dibsrc.py</span> file in you DIBS directory.  Your DIBS directory is
+usually created in <span class="file">~/.dibs</span> the first time you invoke DIBS.  Use
+the command <span class="samp">dibs show_database</span> if you just want to get your
+DIBS directory created without doing anything else.
+
+   <p>To set a particular option, just put the appropriate command in your
+<span class="file">dibsrc.py</span> file. 
+For example, to specify a
+particular name for
+the log file instead of the default, place the following command in
+the file <span class="file">~/.dibs/dibsrc.py</span>:
+<pre class="example">     logFile = '/tmp/myDibsLog'
+</pre>
+   <p>All the options which you can set in this manner are described below
+including the variable <a href="#DIBS_005fDIR">DIBS_DIR</a>, which behaves slightly
+differently.
+
+   <p>The options are separated into two classes &ldquo;User Options&rdquo; and
+&ldquo;Variables&rdquo;.  The only distinction is that &ldquo;User Options&rdquo; are
+things which you will probably want to customize while variables are
+things which you probably should not change unless you know what you
+are doing.
+
+<h4 class="subsection">6.0.1 Option List</h4>
+
+<div class="defun">
+&mdash; User Option: <b>dibsPublicKey</b><var><a name="index-dibsPublicKey-24"></a></var><br>
+<blockquote><p>This variable is the name of the GPG key to use in signing messages
+sent to peers.  By default it
+is set using environment variables to be <span class="samp">${USER}@${HOST}</span>.  A
+warning is printed if either the USER or HOST environment variable can
+not be determined. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>dibsPrivateKey</b><var><a name="index-dibsPrivateKey-25"></a></var><br>
+<blockquote><p>This variable is the name of the GPG key to use in encrypting messages
+that you ask peers to store for you.  By default it
+is set using environment variables to be <span class="samp">${USER}@${HOST}</span>.  A
+warning is printed if either the USER or HOST environment variable can
+not be determined.
+
+        <p>The value of dibsPrivateKey can be the same or different than
+dibsPublicKey.  If they are the same, you have the convenience of only
+having to keep track of one GPG key.  If they are different and you
+keep the private key secret, you have the added security that anyone
+trying to crack your encryption does not have the public key to work
+with.
+
+        <p>Cracking the encryption when the public key is known MAY be easier
+than cracking the encryption when no public key is available. 
+Nobody has yet figured out a way to break the commonly used
+public key encryption systems, though, so I personally just use the
+same public key for both encryption and signing. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>dibsAdmin</b><var><a name="index-dibsAdmin-26"></a></var><br>
+<blockquote><p><a name="dibsAdmin"></a>
+This variable is the email address of the user.  By default it is set
+using environment variables to be <span class="samp">${USER}@${HOST}</span>.  A
+warning is printed if either the USER or HOST environment variable can
+not be determined.
+
+        </blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>mailUserOnRecovery</b><var><a name="index-mailUserOnRecovery-27"></a></var><br>
+<blockquote><p><a name="mailUserOnRecovery"></a> This variable controls whether DIBS
+automatically emails the user specified in the dibsAdmin variable when
+it finishes processing a recover_file command <a href="#recover_005ffile">recover_file</a>.  The
+default value is 1, set it to 0 if you want to disable emailing when
+recovery is complete. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>kbPerFile</b><var><a name="index-kbPerFile-28"></a></var><br>
+<blockquote><p><a name="kbPerFile"></a>
+This variable sets the maximum size chunk to store with a peer.  The
+default is 10 megabytes.  Files larger than this value
+are broken up into smaller pieces before storage. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>logFile</b><var><a name="index-logFile-29"></a></var><br>
+<blockquote><p>This variable specifies the file name to use in logging DIBS
+information.  The default is
+     <pre class="example">          DIBS_DIR = DIBS_DIR + '/logfile'
+     </pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>logLevel</b><var><a name="index-logLevel-30"></a></var><br>
+<blockquote><p>This variable specifies the type of information which will be included
+in the log file.  The different types of messages and their levels are
+shown below:
+        <p><table summary=""><tr align="left"><td valign="top">LOG_DEBUG </td><td valign="top">-20
+<br></td></tr><tr align="left"><td valign="top">LOG_INFO  </td><td valign="top">-10
+<br></td></tr><tr align="left"><td valign="top">LOG_WARNING </td><td valign="top">0
+<br></td></tr><tr align="left"><td valign="top">LOG_ERROR </td><td valign="top">10
+<br></td></tr><tr align="left"><td valign="top">LOG_CRITICAL </td><td valign="top">20
+        <br></td></tr></table>
+All messages with categories above the value for the <span class="samp">logLevel</span>
+variable will be printed to the log file.
+
+        <p>For example, if this variable is set to -10 as shown below
+     <pre class="example">          logLevel = -10
+     </pre>
+        <p>then <span class="samp">LOG_DEBUG</span> messages will not be logged but all others will
+be.
+
+        <p>The default value for this variable is 0. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>printLogLevel</b><var><a name="index-printLogLevel-31"></a></var><br>
+<blockquote><p>This variable specifies the type of information which will be printed
+to the console.  The different types of messages and their levels are
+the same as described for the <span class="samp">logLevel</span> variable.
+
+        <p>All messages with categories above the value for the <span class="samp">printLogLevel</span>
+variable will be printed to the console.
+
+        <p>For example, if this variable is set to -20 as shown below
+     <pre class="example">          logLevel = -20
+     </pre>
+        <p>then all messages will be printed.
+
+        <p>The default value for this variable is 0. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>maxLogSize</b><var><a name="index-maxLogSize-32"></a></var><br>
+<blockquote><p>This variable specifies how many kilobytes a log file can contain
+before being rotated.
+
+        <p>For example, if this variable is set to the default value of 1000000
+as shown below,
+     <pre class="example">          maxLogSize = 1000000
+     </pre>
+        <p>then logs will be rotated when they exceed one megabyte.
+
+        </blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>gpgProg</b><var><a name="index-gpgProg-33"></a></var><br>
+<blockquote><p>This variable specifies the path to the GPG program.  The default is
+     <pre class="example">          gpgProg = 'gpg'
+     </pre>
+        <p>If you are using Windows, you will almost certainly have to set this
+variable to point to your GPG program. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>smtpServer</b><var><a name="index-smtpServer-34"></a></var><br>
+<blockquote><p>This variable specifies the SMTP server to use for sending outgoing mail. 
+The default is <span class="samp">localhost</span>, but that almost certainly will not
+work if you are running Windows and probably will not work on most home
+UNIX systems.  The best way to determine the SMTP server is to ask
+your system administrator or your Internet Service Provider. 
+For example, if you connect to the Internet using RCN, you might do
+     <pre class="example">          smtpServer = 'smtp.rcn.com'
+     </pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>daemonLogFile</b><var><a name="index-daemonLogFile-35"></a></var><br>
+<blockquote><p>The DIBS daemon maintains a separate log file than other DIBS commands. 
+The name of this log file is controlled by this variable and defaults to
+     <pre class="example">          daemonLogFile = DIBS_DIR + '/daemonLog'
+     </pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>daemonStopFile</b><var><a name="index-daemonStopFile-36"></a></var><br>
+<blockquote><p><a name="daemonStopFile"></a>
+When running, the DIBS daemon can be stopped by creating the file with
+this name.  If this file contains an integer, the daemon waits that many
+seconds before stopping, otherwise it stops immediately.  In either
+case, the daemon removes this file after stopping.  Note that the daemon
+only checks for the existence of this file occasionally as controlled by
+<a href="#daemonTimeout">daemonTimeout</a>.  The default value is
+     <pre class="example">          daemonStopFile = DIBS_DIR + '/stop_daemon'
+     </pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>daemonTimeout</b><var><a name="index-daemonTimeout-37"></a></var><br>
+<blockquote><p><a name="daemonTimeout"></a>
+When the DIBS daemon is alive it waits in an idle state for incoming
+connections.  After a timeout period given by this variable (specified
+in seconds), it wakes up and performs various actions such as checking
+if it should stop <a href="#daemonStopFile">daemonStopFile</a>, checking if it should
+automatically backup files, or if it should attempt to poll passive
+peers <a href="#pollInterval">pollInterval</a>.  The default value is 600. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>pollInterval</b><var><a name="index-pollInterval-38"></a></var><br>
+<blockquote><p><a name="pollInterval"></a>
+This variable specifies how often (in seconds) the DIBS daemon should
+contact passive peers to ask for messages.  Since the daemon only wakes
+up to do polling periodically (see <a href="#daemonTimeout">daemonTimeout</a>), the actual poll
+interval may be the sum of this variable, the daemonTimeout variable,
+and the time required to perform intervening actions by the daemon. 
+The default value is 3600. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>probePeriod</b><var><a name="index-probePeriod-39"></a></var><br>
+<blockquote><p><a name="probePeriod"></a>
+This variable controls how of then the
+<a href="#probe">probe</a> command is automatically called by the daemon. 
+Specifically, a <span class="samp">probe</span> will be attempted roughly every
+<a href="#daemonTimeout">daemonTimeout</a> seconds, but no more often than specified by this
+variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>probeTimeout</b><var><a name="index-probeTimeout-40"></a></var><br>
+<blockquote><p><a name="probeTimeout"></a>
+This variable specifies how long a probe is allowed to take.  If more
+time (in seconds) has passed for a probe than the value of this
+variable, the probe is marked as a timeout. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>redundantPieces</b><var><a name="index-redundantPieces-41"></a></var><br>
+<blockquote><p><a name="redundantPieces"></a>
+This variables specifies how many redundant pieces of a file will be
+created.  If a file is chopped into k pieces
+(see <a href="#kbPerFile">kbPerFile</a>), this many extra pieces will be added using a
+Reed-Solomon code.  For example, if a file is chopped into 5 pieces
+and redundantPieces is 2, then 7 pieces will be sent such that the
+original file can be recovered from any 5 of those 7 pieces. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; User Option: <b>hostname</b><var><a name="index-hostname-42"></a></var><br>
+<blockquote><p><a name="hostname"></a>
+This variable specifies the name of the host on which
+your DIBS client is running.  By default, this value is obtained from
+the <span class="samp">HOST</span> environment variable and should not need to be modified. 
+If that environment variable is empty or returns something useless like
+<span class="samp">localhost</span> or <span class="samp">127.0.0.1</span>, then you should probably explictly
+set this variable. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>daemonPort</b><var><a name="index-daemonPort-43"></a></var><br>
+<blockquote><p><a name="daemonPort"></a>
+This variable specifies the port the DIBS daemon should listen on.  The
+default value is 6363. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>sleepTime</b><var><a name="index-sleepTime-44"></a></var><br>
+<blockquote><p>Sometimes DIBS needs to wait briefly for things like a lockfile being released
+or an unstore request being sent out before continuing.  At these times
+it sleeps for a number of seconds specified by the sleepTime variable
+whose default value is 10. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>maxMsgAge</b><var><a name="index-maxMsgAge-45"></a></var><br>
+<blockquote><p>This variable specifies how many seconds a message can wait in the
+outgoing queue before DIBS complains about it.  The default is set to 10
+days:
+     <pre class="example">          maxMsgAge = 86400 * 10
+     </pre>
+        </blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>rootDir</b><var><a name="index-rootDir-46"></a></var><br>
+<blockquote><p><a name="rootDir"></a>
+This variables specifies the root directory (usually <span class="samp">/</span> on a
+UNIX system). 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>autoBackupDir</b><var><a name="index-autoBackupDir-47"></a></var><br>
+<blockquote><p><a name="autoBackupDir"></a>
+This variables specifies where the <span class="samp">auto_check</span> command looks for files
+and directories to backup automatically <a href="#auto_005fcheck">auto_check</a>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>errorDir</b><var><a name="index-errorDir-48"></a></var><br>
+<blockquote><p><a name="errorDir"></a>
+Any error messages which are mailed to the DIBS Administrator
+specified by <a href="#dibsAdmin">dibsAdmin</a> are also stored in the directory named by
+this variable.  You should periodically read and delete messages here. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>errMaxCount</b><var><a name="index-errMaxCount-49"></a></var><br>
+<blockquote><p>To prevent the DIBS Administrator from being mail bombed with error
+messages if something extremely unusual occurs, DIBS stops mailing
+error messages once the number of error messages in the directory
+named by <a href="#errorDir">errorDir</a> exceeds this threshold. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>errWarnCount</b><var><a name="index-errWarnCount-50"></a></var><br>
+<blockquote><p>To prevent the DIBS Administrator from forgetting about error messages
+stored in the directory named by <a href="#errorDir">errorDir</a>, DIBS sends warnings
+about this directory filling up when the number of messages exceeds
+this threshold. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>sendMsgThreshold</b><var><a name="index-sendMsgThreshold-51"></a></var><br>
+<blockquote><p>When storing a directory DIBS works by creating a queue of outgoing
+messages before trying to connect to peers to deliver the messages. 
+Once more files than specified by this variable are queued up, DIBS
+will try to connect to peers to send the messages out.
+
+        <p>If you make this threshold too small then DIBS will waste a lot of
+time with network overhead in making and closing connections to
+peers.  If you make this threshold too large then you prevent
+pipelining of your DIBS program sending messages out and your peers
+processing the messages you are sending to them. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>DIBS_DIR</b><var><a name="index-DIBS_005fDIR-52"></a></var><br>
+<blockquote><p><a name="DIBS_005fDIR"></a>
+This variable determines the location of the user's DIBS files.  By
+default it is <span class="samp">${HOME}/.dibs</span>.  You <em>can not</em> set this via
+the <span class="file">dibsrc.py</span> because DIBS looks for the <span class="file">dibsrc.py</span> file in
+the directory DIBS_DIR.  Therefore to use a directory other than
+<span class="samp">${HOME}/.dibs</span> to hold your DIBS files set the environment
+variable <span class="env">DIBS_DIR</span>. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>pythonExe</b><var><a name="index-pythonExe-53"></a></var><br>
+<blockquote><p>This variable describes the path to the Python executable.  By default,
+it is set to the <span class="samp">sys.executable</span> value obtained from Python.  You
+should not need to change it unless you have multiple versions of python
+installed and are doing something rather strange. 
+</p></blockquote></div>
+
+<div class="defun">
+&mdash; Variable: <b>defaultContractServerURL</b><var><a name="index-defaultContractServerURL-54"></a></var><br>
+<blockquote><p><a name="defaultContractServerURL"></a>
+This variable specifies the default URL to use for the Peer Finder
+contract server.  You should only change this if you want to use a
+special Peer Finder server. 
+</p></blockquote></div>
+
+<div class="node">
+<p><hr>
+<a name="Automated-Testing"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#TODO">TODO</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Options">Options</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">7 Automated Testing</h2>
+
+<p>DIBS provides various scripts for automated testing.  These automated
+tests will probably be most useful to developers, but users may find
+them useful in diagnosing problems.
+
+   <p>Furthermore, in addition to adding more tests, one quality assurance
+goal of DIBS is to add an automated test for each bug which is reported
+or fixed to verify the existence of the bug and its resolution. 
+Ideally, advanced users should be able to submit a bug report by
+creating a new automated test which demonstrates the bug.
+
+   <p>The testing suite is currently too complicated and poorly documented to
+reach this goal.  But as a first step in achieving better testing and
+quality assurance, this chapter documents the current automated testing
+framework.
+
+<h3 class="section">7.1 Basic Testing Framework</h3>
+
+<p>The <span class="samp">tests</span> directory in the DIBS source distribution contains
+subdirectories for each test group as well as testing utilities which
+are useful in all tests.  The basic testing philosophy is that only
+general testing utilities and not specific tests go in the <span class="samp">tests</span>
+directory.  Actual test scripts are contained in subdirectories of
+<span class="samp">tests</span> which represent test groups.  To run a test group, the user
+sets the environment variables described in
+<a href="#Environment-Variables-Required-for-Testing">Environment Variables Required for Testing</a>,
+changes directory to the top level DIBS
+directory, and imports <span class="samp">all</span> from the given test suite.
+
+   <p>The following is a brief description of the contents of the <span class="samp">tests</span>
+directory:
+
+     <ul>
+<li><span class="samp">tests/test_utils.py</span>
+
+     <p>Contains utility functions useful for all tests.
+
+     <li><span class="samp">tests/__init__.py</span>
+
+     <p>Contains code to ensure that various environment variables required for
+the tests are initialized before any tests begin.
+
+     <li><span class="samp">tests/all.py</span>
+
+     <p>This file imports all test subdirectories in the <span class="samp">tests</span> directory
+and causes the corresponding tests to be run.  Specifically, the
+following commands execute all tests:
+     <pre class="example">          cd &lt;path&gt;/&lt;to&gt;/dibs
+          echo from tests import all | &lt;path&gt;/&lt;to&gt;/python
+     </pre>
+     <li><span class="samp">tests/contracts</span>
+
+     <p>This subdirectory contains scripts to test the contract functionality in
+the DIBS Peer Finder service.  To run only the tests in this
+subdirectory do:
+     <pre class="example">          cd &lt;path&gt;/&lt;to&gt;/dibs
+          echo from tests.contracts import all | &lt;path&gt;/&lt;to&gt;/python
+     </pre>
+     <li><span class="samp">tests/daemon</span>
+This subdirectory contains scripts to test the DIBS daemon.  To run only
+the tests in this subdirectory do:
+     <pre class="example">          cd &lt;path&gt;/&lt;to&gt;/dibs
+          echo from tests.daemon import all | &lt;path&gt;/&lt;to&gt;/python
+     </pre>
+     </ul>
+
+<h3 class="section">7.2 Environment Variables Required for Testing</h3>
+
+<p><a name="Environment-Variables-Required-for-Testing"></a>
+
+   <p>The following environment variables <em>must</em> be set before any
+automated tests can be run:
+
+     <ul>
+<li><span class="samp">DIBS_ADMIN</span>
+The email address of the administrator of these tests. 
+This will be used as the <span class="samp">dibsAdmin</span> field during the tests and the
+email address specified will receive various error and status messages
+during testing.
+
+     <li><span class="samp">SMTP_SERVER</span>
+The SMTP server to use in sending email messages.
+
+     <li><span class="samp">DIBS_TESTING_KEY</span>
+The email address of the GPG key to use during testing.
+
+     <li><span class="samp">DIBS_SECOND_TESTING_KEY</span>
+The email address of a second GPG key to use during testing.
+
+   </ul>
+
+   <p>The following environment variables are optional and do not need to be
+set:
+
+     <ul>
+<li><span class="samp">DIBS_TEST_BASE</span>
+This should point to the <span class="samp">tests</span> directory.  By default it is
+initialized the python command <span class="samp">os.path.join(os.getcwd(),'tests')</span>.
+
+     <li><span class="samp">DIBS_EXE</span>
+This should point to the executable to use to run the tests.  By
+default, this gets set to <span class="samp">os.path.join(os.getcwd(),'src','dibs_ui.py')</span>.
+
+   </ul>
+
+<div class="node">
+<p><hr>
+<a name="TODO"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Concept-Index">Concept Index</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Automated-Testing">Automated Testing</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="chapter">8 TODO</h2>
+
+<p>The following are issues which need to be fixed in future releases.  If
+you have other suggestions or would like to fix something in the list
+below, please contact <a href="mailto:emin@alum.mit.edu">emin@alum.mit.edu</a>.
+
+     <dl>
+<dt>&bull;Provide options to the show_database command<dd>Current show_database prints the entire database.  This is annoying if
+you just want to check data about a certain file or a certain peer. 
+We need to provide some options to show_database to let you just get
+small amounts of info.
+
+     <br><dt>&bull;GUI<dd>It would be nice to improve the GUI.
+
+     <br><dt>&bull;Peer finding server<dd>To facilitate finding peers, it would be nice to have a central server
+which DIBS peers can automatically post requests for and complete
+peering aggreements.  By automatically, I mean that the user should
+just be able to tell his DIBS program that he wants to find peers with
+certain properties and the program should take care of the rest.
+
+     <br><dt>&bull;More automated tests<dd>We need more automated tests to find and squash the bugs in DIBS.
+
+     <br><dt>&bull;Use py2exe<dd>
+Travis made a good point that it DIBS would be easier to use if the
+DIBS installer could install python and GPG for the user instead of
+requiring the user to install those packages separetely.
+
+     <br><dt>&bull;If you want to clear out peers and one of them is not responding,<dd>DIBS quits without sending clear messages to the other peers.  This
+should be fixed.
+
+   </dl>
+
+<div class="node">
+<p><hr>
+<a name="Concept-Index"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Command-Index">Command Index</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#TODO">TODO</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="unnumbered">Concept Index</h2>
+
+<ul class="index-cp" compact>
+   </ul><div class="node">
+<p><hr>
+<a name="Command-Index"></a>Next:&nbsp;<a rel="next" accesskey="n" href="#Option-Index">Option Index</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Concept-Index">Concept Index</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="unnumbered">Command Index</h2>
+
+
+
+<ul class="index-fn" compact>
+<li><a href="#index-add_005fpeer-1"><code>add_peer</code></a>: <a href="#add_005fpeer">add_peer</a></li>
+<li><a href="#index-auto_005fcheck-7"><code>auto_check</code></a>: <a href="#auto_005fcheck">auto_check</a></li>
+<li><a href="#index-cleanup-14"><code>cleanup</code></a>: <a href="#cleanup">cleanup</a></li>
+<li><a href="#index-clear-8"><code>clear</code></a>: <a href="#clear">clear</a></li>
+<li><a href="#index-delete_005fpeer-2"><code>delete_peer</code></a>: <a href="#delete_005fpeer">delete_peer</a></li>
+<li><a href="#index-edit_005fpeer-3"><code>edit_peer</code></a>: <a href="#edit_005fpeer">edit_peer</a></li>
+<li><a href="#index-forget-5"><code>forget</code></a>: <a href="#forget">forget</a></li>
+<li><a href="#index-merge_005fstats-20"><code>merge_stats</code></a>: <a href="#merge_005fstats">merge_stats</a></li>
+<li><a href="#index-poll_005fpassives-15"><code>poll_passives</code></a>: <a href="#poll_005fpassives">poll_passives</a></li>
+<li><a href="#index-post_005fcontract-21"><code>post_contract</code></a>: <a href="#post_005fcontract">post_contract</a></li>
+<li><a href="#index-probe-16"><code>probe</code></a>: <a href="#probe">probe</a></li>
+<li><a href="#index-process_005fmessage-17"><code>process_message</code></a>: <a href="#process_005fmessage">process_message</a></li>
+<li><a href="#index-propose_005fcontract-23"><code>propose_contract</code></a>: <a href="#propose_005fcontract">propose_contract</a></li>
+<li><a href="#index-recover_005fall-12"><code>recover_all</code></a>: <a href="#recover_005fall">recover_all</a></li>
+<li><a href="#index-recover_005ffile-11"><code>recover_file</code></a>: <a href="#recover_005ffile">recover_file</a></li>
+<li><a href="#index-send_005fhello-19"><code>send_hello</code></a>: <a href="#send_005fhello">send_hello</a></li>
+<li><a href="#index-send_005fmessage-18"><code>send_message</code></a>: <a href="#send_005fmessage">send_message</a></li>
+<li><a href="#index-show_005fdatabase-13"><code>show_database</code></a>: <a href="#show_005fdatabase">show_database</a></li>
+<li><a href="#index-start_005fdaemon-4"><code>start_daemon</code></a>: <a href="#start_005fdaemon">start_daemon</a></li>
+<li><a href="#index-stop_005fdaemon-6"><code>stop_daemon</code></a>: <a href="#stop_005fdaemon">stop_daemon</a></li>
+<li><a href="#index-store-9"><code>store</code></a>: <a href="#store">store</a></li>
+<li><a href="#index-unpost_005fcontract-22"><code>unpost_contract</code></a>: <a href="#unpost_005fcontract">unpost_contract</a></li>
+<li><a href="#index-unstore_005ffile-10"><code>unstore_file</code></a>: <a href="#unstore_005ffile">unstore_file</a></li>
+   </ul><div class="node">
+<p><hr>
+<a name="Option-Index"></a>Previous:&nbsp;<a rel="previous" accesskey="p" href="#Command-Index">Command Index</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+<br>
+</div>
+
+<h2 class="unnumbered">Option Index</h2>
+
+
+
+<ul class="index-vr" compact>
+<li><a href="#index-autoBackupDir-47"><code>autoBackupDir</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-daemonLogFile-35"><code>daemonLogFile</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-daemonPort-43"><code>daemonPort</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-daemonStopFile-36"><code>daemonStopFile</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-daemonTimeout-37"><code>daemonTimeout</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-defaultContractServerURL-54"><code>defaultContractServerURL</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-DIBS_005fDIR-52"><code>DIBS_DIR</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-dibsAdmin-26"><code>dibsAdmin</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-dibsPrivateKey-25"><code>dibsPrivateKey</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-dibsPublicKey-24"><code>dibsPublicKey</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-errMaxCount-49"><code>errMaxCount</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-errorDir-48"><code>errorDir</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-errWarnCount-50"><code>errWarnCount</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-gpgProg-33"><code>gpgProg</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-hostname-42"><code>hostname</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-kbPerFile-28"><code>kbPerFile</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-logFile-29"><code>logFile</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-logLevel-30"><code>logLevel</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-mailUserOnRecovery-27"><code>mailUserOnRecovery</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-maxLogSize-32"><code>maxLogSize</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-maxMsgAge-45"><code>maxMsgAge</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-pollInterval-38"><code>pollInterval</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-printLogLevel-31"><code>printLogLevel</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-probePeriod-39"><code>probePeriod</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-probeTimeout-40"><code>probeTimeout</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-pythonExe-53"><code>pythonExe</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-redundantPieces-41"><code>redundantPieces</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-rootDir-46"><code>rootDir</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-sendMsgThreshold-51"><code>sendMsgThreshold</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-sleepTime-44"><code>sleepTime</code></a>: <a href="#Options">Options</a></li>
+<li><a href="#index-smtpServer-34"><code>smtpServer</code></a>: <a href="#Options">Options</a></li>
+   </ul></body></html>
+

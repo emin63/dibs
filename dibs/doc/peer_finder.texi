@@ -1,0 +1,157 @@
+
+The Peer Finder service is designed to allow people to find trading
+partners.  The basic idea is that you can use the @samp{post_contract}
+command to advertise a ``trading contract'' describing your terms for
+trading backup space.  Others can then use the @samp{propose_contract}
+command to propose a specific contract within the parameters you
+specified.  If your DIBS client finds the proposed contract to be valid
+(i.e., within the paremters you specified with @samp{post_contrat}),
+then public keys, email addresses, and other parameters will be
+exchanged between your DIBS client and the peer proposing the contract.
+In particular, manually issuing @samp{add_peer} or @samp{edit_peer}
+commands will no longer be required.  
+
+To summarize, the main benefits of the peer finder service are:
+
+@itemize @bullet
+
+@item Find peers with whom to exchange backup space.
+
+@item Advertise available backup space and desired trading parameters.
+
+@item Easier configuration without manually exchange keys, emails, etc. 
+
+@end itemize
+
+@section Posting a Contract
+@anchor{Posting a Contract}
+
+To post a contract, use the @samp{post_contract} command as illustrated
+by the example below:
+
+@example
+dibs.py post_contract --min_quota 10M --max_quota 30M --quota_mult 2.3
+--lifetime 86400 --contract_name my_contract
+@end example
+
+This would post an advertisement for a trading agreement where the
+poster wants between 10 and 30 megabytes of storage space as specified
+by @samp{--min_quota} and @samp{--max_quota}.  The @samp{--quota_mult}
+of 2.3 indicates that the poster wants at least 2.3 times more space
+from than he provides.  The @samp{--lifetime} value indicates that this
+contract is valid for 86400 seconds (i.e., one day).  After that time
+elapses, it will be automatically removed from the contract server.  The
+optional @samp{--contract_name} name argument specifies the name of the
+contract (@samp{my_contract} in this example).  Usually, you should not
+explicitly name a contract and let DIBS automatically generate a name.
+Providing a name can be useful in automated scripts, however.
+
+The advertisement is posted to the server specified by the
+@samp{defaultContractServerURL} in the @samp{dibsrc.py} file (if no such
+variable is present then the current default is
+@url{www.martinian.com:8000/~emin/cgi-bin/peer_finder}.  You can view
+posted contracts from yourself or others by pointing a web browser to
+@url{www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi}
+(or the value of the @samp{defaultContractServerURL} followed by
+@samp{show_contracts.cgi} if you are using a different contract server.)
+
+The @samp{--quota_mult} option may seem strange at first.  Why would
+anyone be willing to give more space than they provide?  One 
+possibility is donating space to charities.  A worthy organization might
+post a contract either asking for free space or highly discounted
+space.  Another possibility is that some people might have very high
+bandwidth connections, high uptime, or other features which make them
+more desirable trading partners.  By providing @samp{--quota_mult} the
+peer finder service allows for a variety of trading relationships.
+
+@section Cancelling a Contract
+
+You can cancel a contract that you posted with the
+@samp{unpost_contract} command as illustrated below:
+
+@example
+dibs.py unpost_contract --contract_name @var{NAME}
+@end example
+
+where @var{NAME} is replaced with the name of the contract you are
+trying to cancel.  The contract name will be shown on the contract
+server @samp{show_contracts.cgi} page.  Also, you can find your
+currently posted contracts by using the command
+
+@example
+dibs.py show_database --only posted_contracts
+@end example
+
+Obviously you cannot unpost contracts posted by others and nobody can
+unpost your contract.  This is accomplished by storing a revocation
+password on in your DIBS database which is told only to the server.
+Your client will automatically supply the required revocation password
+to the server when unposting.
+
+@section Responding to a Posted Contract
+
+Once you have browsed
+@url{www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi}
+or another contract server site and found a contract you would like to
+enter into, you use the @samp{propose_contract}.  The following example
+illustrates how you would respond to the contract posted in 
+@ref{Posting a Contract}.
+
+@example
+dibs.py propose_contract --local_quota 10M --remote_quota 23M --talk
+active --listen active --contract_name my_contract
+@end example
+
+The @samp{--local_quota}, @samp{--remote_quota}, @samp{--talk}, and
+@samp{--listen} arguments are the parameters which the peer you are
+proposing the contract to would use if he were to use the
+@samp{add_peer} command.  This bears repeating: these arguments are from
+the point of view of the peer you are proposing the contract to not from
+your point of view.  Thus the @samp{--local_quota} argument specifies
+how much space the peer will give you, the @samp{--remote_quota}
+argument specifies how much space the peer will get from you, the
+@samp{--talk} argument specifies how the peer will contact your machine,
+and the @samp{--listen} argument specifies how your DIBS client will
+contact the peer.
+
+Once you issue the @samp{propose_contract} command, your peer will try
+to contact the poster of the contract.  Thus, the poster should have an
+@samp{active} @samp{--listen} method otherwise there will be no way for
+your DIBS client to contact the poster's DIBS client!  Assuming that
+your client successfully contacts the poster, the poster will view the
+proposed contract and make a yes or no decision.  The poster will then
+contact the proposer to return the decision and potentially exchange key
+information.  
+
+The simplest case is when both poster and proposer accept direct
+incoming connections and both @samp{--talk} and @samp{--listen} are
+@samp{active}.  Things can still work, however, if the proposer is
+behind a firewall, but in this case, the proposer must issue the
+@samp{poll_passives} command followed by the @samp{process_message}
+command to get the response from the poster.
+
+In any case, once the proposed contract is accepted and the proper
+messages are exchanged, both the posting and proposing DIBS client will
+exchange GPG key information, and set up their quotas accordingly
+without the need for explicitly using the @samp{add_peer} command.
+
+As an aside, the above discussion illustrates another reason for the
+@samp{--quota_mult} argument in posting a contract.  If your machine
+is available to accept incoming connections then others who are behind
+firewalls can still peer with you.  On the other hand, if your machine
+is behind a firewall and cannot accept incoming connections then you can
+only peer with machines that can accept incoming connections.  This
+would suggest that machines which accept incoming connections should be
+able to ``charge more'' for peering than those which cannot accept
+incoming connections.  The @samp{--quota_mult} facilitates this.
+
+@section Running Your Own Peer Finder Service
+
+If you are running a private DIBS network (e.g., to backup files within
+your company or organization), you might want to run your own peer
+finder service.  To do so, look at the @samp{README} file in the
+@samp{src/peer_finder/cgi-bin} directory of the DIBS distribution.
+
+Once the Peer Finder service becomes more stable, more documentation on
+running your own Peer Finder service will be added to the regular
+documentation.  

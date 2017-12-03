@@ -1,0 +1,301 @@
+@section Prerequisites
+
+For DIBS to work, you need to have the following installed:
+
+@itemize @bullet
+
+@item Python version 2.3 or greater.
+
+@item Gnu Privacy Guard (GPG) version 1.2 or greater.
+
+@item If you want to compile the documentation, you will need LaTeX and 
+      texinfo installed. 
+
+@item For Debian users the packages gnupg, python2.3, python2.3-dev, 
+      texinfo, and tetex-bin should be enough.
+
+@item If you are using Windows, you should also install the Python
+      windows extensions from @url{http://www.python.org/windows/win32com}.
+
+@end itemize
+
+
+
+@section Installation
+
+To install DIBS, download the binary distribution for you architecture or 
+the entire source tarball from @url{http://dibs.sourceforge.net} or
+@url{http://www.csua.berkeley.edu/~emin/source_code/dibs}.  
+If you download the source tarball, uncompress it, become root, and do 
+@samp{python setup.py install} to install.  
+If you do not want to install 
+as root, you can do 
+@samp{python setup.py install --root=<alternate>/<root>/<path>}.
+
+The main file used to run DIBS is @samp{dibs.py} which will usually be
+installed in an appropriate place for Python scripts.  On a UNIX
+system, you should be able to run DIBS using @samp{dibs.py ...}.  On a
+Windows system, you may need to do something like
+@samp{C:\<path>\<to>\python.exe dibs.py ...}.
+
+
+@section Configuration
+
+@subsection Create a GPG key
+
+Create a GPG key for DIBS using the command @samp{gpg --gen-key}.  You
+@strong{MUST} use an empty passphrase for your key so that DIBS can
+sign/encrypt with it in batch mode.  We recommend choosing the "email
+address" field of the key to be different from your true email address
+by appending .dibs (e.g. @email{emin.dibs@@alum.mit.edu}).  Make
+sure you give your gpg public key to any peers you want to trade files
+with.  If your GPG key is not @samp{$USER@@$HOST}, you will need to
+put the commands @samp{dibsPublicKey = '<yourKeyName>'} and
+@samp{dibsPrivateKey = '<yourKeyName>'} in your @file{dibsrc.py} file.
+See the section in the manual on Options for more details.
+
+@subsubsection IMPORTANT: DIBS refers to keys by email address
+@anchor{GPG Keys Named via Email Address}
+
+DIBS currently refers to GPG keys via the email address as opposed to
+the GPG key fingerprint or other method.  Thus when you set
+@samp{dibsPublicKey}, @samp{dibsPrivateKey}, etc., you should be doing
+something like
+
+@example
+dibsPrivateKey = 'emin.dibs@@alum.mit.edu'
+@end example
+
+Also, you do not need to put a real email address in the name of the
+key, you can essentially put in whatever name you like.  Thus if you
+have multiple machines running dibs you can have one machine with the
+key name foo.dibs@@example.com and another with the key
+bar.dibs@@example.com and so on.
+
+@subsection DIBS Commands
+
+There are a variety of commands for using and configuring DIBS.  All
+commands can be issued either from the command line or from a
+graphical user interface (GUI).  To be complete and precise, this
+manual describes the command line version, but if you wish to use the
+graphical user interface simply use the @samp{dibs.py} command with no
+arguments to start the GUI.
+
+@subsection Create An Empty Database
+
+Issue the command @samp{dibs.py show_database}
+
+Normally, this command would show you the database of peers you can
+exchange files with (which should be empty).  Since this is the first
+time you are using DIBS, this command (actually any command) will
+first create the @samp{~/.dibs} directory to hold DIBS related files.
+On a windows system @samp{~/} usually refers to 
+@samp{C:\Documents and Settings\<user>}.
+
+@subsection Customize Default Parameters
+
+If your email address is not @samp{$USER@@$HOST} and/or your GPG key is
+not @samp{$USER.dibs@@HOST} you will need to tell DIBS about this in the
+file @samp{~/.dibs/dibsrc.py}.  In that file put the following:
+
+@example
+dibsPublicKey = '<your-gpg-key-name>'
+dibsPrivateKey = '<your-gpg-key-name>'
+dibsAdmin = '<your-email-address>'
+@end example
+
+Remember to refer to GPG keys by the email address as described in
+@ref{GPG Keys Named via Email Address}.
+
+Also, if your gpg program is in a weird place, you may also want to
+put
+
+@example
+gpgProg = '<path>/<to>/gpg'
+@end example
+
+If your python executable is in a strange place (e.g., if you run
+Windows) or if you have more than one version of python installed
+(e.g., on a Debian or OS X system where you installed a different
+version in addition to the default python installation), you may also
+need to specify the location of the python interpreter via
+
+@example
+pythonExe = '<path>/<to>/python'
+@end example
+
+Finally, you will probably need to set your outgoing mail server via
+something like
+
+@example
+smtpServer = 'smtp.<your-isp>.com'
+@end example
+
+See the manual for other customizations that can go in the dibsrc.py
+file.  
+
+@subsection Add Peers
+
+Their are two basic ways to tell DIBS about people or computers with
+whom you want to exchange backup space.  You can either find partners
+yourself and manually import their GPG key and manually enter their
+information using the @samp{add_peer} command are you can use the DIBS
+peer finder service with the @samp{post_contract} and
+@samp{propose_contract} commands.  Ideally, the peer finder service
+should be simpler and easier, but it is currently somewhat experimental.
+Both methods are discussed below.
+
+@subsubsection Using the @samp{add_peer} Command
+
+First, you must import the GPG keys you from people you want to exchange
+files with.  This can be done using @samp{gpg --import}.  See the GPG
+documentation for more details.  As described in @ref{GPG Keys Named via
+Email Address}, DIBS currently uses the email address for a GPG key as
+the peer name, so when you create a GPG key it is useful to keep this in
+mind.  Please read the description below before creating/importing GPG
+keys for use with DIBS.
+
+
+Once you agree to trade files with someone, each of you must add the
+other to the DIBS database using the following command:
+
+@example
+dibs.py add_peer --email @var{TRUE_EMAIL_ADDRESS} 
+ --peer @var{DIBS_KEY_FOR_PEER} --local_quota @var{L_QUOTA} 
+ --remote_quota @var{R_QUOTA} --comment @var{COMMENT} 
+ --talk @var{TALK_METHOD} --listen @var{LISTEN_METHOD} 
+ --host @var{HOST} --port @var{PORT}
+@end example
+      
+The arguments have the following meaning:
+@table @bullet
+@item @var{TRUE_EMAIL_ADDRESS}: 
+The true email address of the peer.  This is where DIBS sends
+correspondence to.
+
+@item @var{GPG_KEY_FOR_PEER}:   
+The name of the peer's DIBS key.  Specifically, this must be the email
+address for the GPG key not other methods of key identification and not
+the true email address for the peer.
+
+@item @var{L_QUOTA}:
+This is how much space (in kilo-bytes) you will allow the peer to use on your
+machine.
+
+@item @var{R_QUOTA}:
+This is how much space (in kilo-bytes) your peer will allow you to use on his
+machine.  
+
+@item @var{COMMENT}:
+A required comment (this can be "none" if you like).
+
+@item @var{TALK_METHOD}:
+How to send messages to this peer.  This can be either @samp{active},
+@samp{passive}.  We recommend using @samp{active}, but @samp{passive}
+will be required if you or your peer is behind a firewall.  See the
+manual for details.
+
+@item @var{LISTEN_METHOD}:
+How to receive messages from this peer.  This can be either
+@samp{active}, @samp{passive}.  We recommend using @samp{active}, but
+@samp{passive} will be required if you or your peer is behind a
+firewall.  Essentially, the listen method you use is the talk method a
+corresponding peer would use and vice versa.
+
+@item @var{HOST}:
+The name of the machine which peer operates from.
+
+@item @var{PORT}:
+The port on @var{HOST} to use.  This is an optional parameter with default
+specified in the dibs_options.py or dibsrc.py file.
+
+@end table
+
+For example, if you wanted to trade files with me where I store 1 MB
+for you and you store 5 MB for me you would issue the command
+
+@samp{dibs.py add_peer --email emin@@alum.mit.edu --peer
+emin.dibs@@alum.mit.edu --local_quota 5000 --remote_quota 1000
+--comment "trade with emin" --talk active --listen active --host martinian.com}
+
+There should be no line breaks in the command above.
+Notice that my email address is @samp{emin@@alum.mit.edu}, but my dibs
+key is @samp{emin.dibs@@alum.mit.edu}, and the machine I plan to run
+dibs on is @samp{martinian.com}.
+
+This will create an entry for the peer in the database (you can verify
+this using the command @samp{dibs show_database}).
+
+@subsubsection Using the @samp{post_contract} and @samp{propose_contract} Commands
+
+An alternative to manually finding a peer and adding the required
+information is to use the new @samp{post_contract} and
+@samp{propose_contract} commands introduced in version 1.0 of DIBS.
+Essentially, the @samp{post_contract} command allows you to post an
+advertisement on the Internet (or alternatively a private intranet)
+describing the trade parameters you want.  Someone else can then use the
+@samp{propose_contract} command to answer your advertisement.  If the
+proposed parameters match your advertisement then your DIBS client and
+your partner's client will automatically exchange the proper information
+such as GPG keys, talk and listen modes, etc.
+
+These functions are still experimental, however, and so they are
+described in @ref{Peer Finder} instead of the install section for now.
+Users are encouraged to try them out, but those who just want to get
+DIBS working and do not want to fiddle with things may prefer the better
+tested but more tedious @samp{add_peer} approach.
+
+@subsection Automated Backup
+
+To have DIBS automatically back up files or directories, put the
+desired files or directories (or better yet, links to them in
+@samp{~/.dibs/autoBackup}).  For example, if you have a UNIX system and want
+to have your @samp{.emacs} file and your Mail directory automatically backed
+up you could do
+
+@example
+cd ~/.dibs/autoBackup
+ln -s ~/Mail 
+ln -s ~/.emacs
+@end example
+
+Once you start the DIBS daemon (described below), it will periodically
+check everything in @samp{~/.dibs/autoBackup} for changes and back them up.
+
+@subsection Running DIBS
+
+For DIBS to work, you must start the daemon with the command
+
+@example
+dibs.py start_daemon
+@end example
+
+I recommend starting the daemon inside a screen session if you have
+the screen program installed so that you can view the messages the
+daemon generates.  If you are going to start DIBS in a terminal or
+console that you plan to close and you have a UNIX system, 
+you should instead do
+
+@example
+nohup dibs.py start_daemon > /dev/null &
+@end example
+
+so that DIBS does not die when trying to write to standard out.
+
+If errors occur, you may need to restart the daemon.
+the DIBS daemon will periodically send them out to peers to be backed up.
+
+@subsection Preparing for Complete Data Loss
+
+Finally, in order to recover from complete data loss you need to
+protect two absolutely critical pieces of information: your GPG key
+and the list of peers you trade with.  You can obtain the former by
+exporting it from GPG and the latter from your
+@samp{~/.dibs/dibs_database.peerDatabase} file.  So put these two
+pieces of information onto a floppy, CD, or good old fashioned paper
+and store them in a safe place (see the section on 
+@ref{Recovering Everything} for more details).
+
+If you do not store these pieces of information you will still be able
+to recover from isolated damage which does not affect this critical
+data.

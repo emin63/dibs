@@ -1,0 +1,199 @@
+* (EM) (release 0.93)
+
+**  Added a GUI
+
+**  Changed version number to 0.93.
+
+* (EM) (release 0.92) 
+
+**  Added Peer Finder service to allow advertising and automated
+    exchange of peering information.  See manual for details.
+
+**  Updated add_peer and edit_peer commands to allow sizes to
+    be specified using k, m, g, t (e.g., 10k, 10m, 10g, 10t).
+
+**  Updated the protocol DIBS uses to exchange store, unstore, probe,
+    and other messages between peers.  The new protocol is XML based
+    to allow easier debugging, parsing, and extensions.
+
+**  Fixed a deadlock bug reported by Jason Martin in a message to
+    the dibs-discussion mailing list 
+    (https://sourceforge.net/mailarchive/message.php?msg_id=9092728).
+
+**  Made the daemon run its periodic checks like spawnning auto_check,
+    process_message, etc., as soon as it starts up.
+
+**  Other minor bug fixes and improvements
+
+* (EM) (release 0.91)
+
+** Added probe functions to check if peers are really storing the stuff
+   they claim to store.
+
+** Added some statistics tracking features to DIBS. Specifically, the
+   merge_stats command was added.  
+
+** Added automatic log rotation.
+
+** Made it so that the various databases first get written out to
+   <fileName>.CRASH and then get moved to <fileName> to help recover
+   from system crashes.
+
+** Added the send_hello command which can be used to 'ping' a 
+   DIBS daemon to see if it is alive and what protocol version it uses.
+
+** Added a stop_daemon command which stops the daemon as soon as the
+   daemon finishes current processing and has time to 'hear' the stop
+   request.
+
+** Added more options for the 'show_database --only ...' command.
+
+** Added step-by-step instructions for a windows install
+
+** Fixed a bug (I think) that seemed to be causing RemoteFileNonExistent 
+   errors. See the comments in the StoreFile function in dibs_main.py
+   for details.
+
+* (EM) (release 0.9)
+
+** Added the recover_all command which lets a user ask all peers to
+   send back all pieces they are storing for that user.  This command
+   allows a user to recover from a complete loss of data using only
+   the cryptographic key and a list of peers.
+
+** Added the capability for the user to control how much information
+   is logged by introducing 5 levels of severity for messages.
+
+** Fixed a bug in how data is distributed to peers.  The old incorrect
+   behavior was that a peer always gave pieces to the peer with the highest
+   remaining storage.  Now a peer tries to cycle through the different
+   peers if possible.  This fixes bug ID 796359 reported on
+   sourceforge.
+
+** Fixed a bug which would cause DIBS to crash if certain portions of
+   the database were missing.  Now DIBS prints a warning and initializes
+   the missing database portion to be empty.  This was required to
+   make the recover_all command able to recover from a total loss of data.
+  
+** Added more automated tests to verify the bug fixes and test the new
+   recover_all command.
+
+** Got rid of QUICKSTART in favor of centralizing all installation and
+   configuration information in the manual.
+
+* (EM) (release 0.81)
+
+This is a bugfix release designed to get DIBS working on Windows.
+
+** The DIBS start script name was changed from "dibs" to "dibs.py" so 
+   that Windows would associate the script with the Python interpreter.
+
+** Implemented the changes suggested by Daniel Smith in his
+   post to the Open Discussion forum on sourceforge on 2003-05-06
+
+** Hacked the commands.py module to make dibs_mod_commands.py
+   so that getstatusoutput works on windows.
+
+** Added the smtpServer option in dibs_options.py so that users
+   can specify a custom smtp server if localhost doesn't work.
+
+** Got rid of makefile and old install procedure and replaced
+   with setup.py and distutils install.
+
+** Made reading and writing of files use 'rU' or 'wU' to
+   deal with windows CRLF.
+
+** Added code to deal with spaces or colons in file names.
+
+* (EM) Mon Apr 21, 2003 (release 0.8)
+
+* The new command cleanup has been added.
+
+* DIBS now does incremental storage of directories via
+  the command "dibs store --name DIR".  Specifically, this
+  command looks at each file and in DIR and stores it if it has
+  not previously been stored, or if it has been stored but the
+  current version has changed.
+
+* The store_file command has been replaced with the store command.
+  Furthermore the store command takes the argument --name instead
+  of --file and can also take the optional argument --as.
+
+* The send_message command can now be called with no arguments
+  in which case it tries to send all outgoing messages.
+
+* The process_message command can now be called with no arguments
+  in which case it tires to process all incoming messages.
+
+* The dibsKeyName option in dibsrc.py has been replaced with
+  the dibsPublicKey and dibsPrivateKey options.  If you set
+  the dibsKeyName option, you MUST replace it with
+  the dibsPublicKey option and ALSO set dibsPrivateKey.
+
+* The tarCmd and tarOpts options were removed.
+
+* The dibs_backup.py file has been removed due to some code cleanup.
+
+* Cryptography functions have been moved into the new file dibs_crypto.py
+
+* If the something connected to the dibs daemon which did not speak the
+  DIBS protocol, the daemon used to die.  Now, it mails you a message
+  indicating the problem, but stays alive.
+
+* Reed-Solomon encoding was sped up by adding a lookup table for multiply
+  and divide operations in ffield.py
+
+* The database is saved after each file is stored in case an error occurs
+  during a long recursive store.
+
+* (EM) Fri Feb 21, 2003 (release 0.7)
+
+** Added Reed-Solomon coding to provide RAID-like use of
+   reduandant data.  See the FAQ or the manual for more details.
+
+** Added a makefile so that "make install" installs the
+   dibs files into /usr/local (or wherever the user wants).
+
+** If "make install" is used, the user can now run DIBS
+   using the command "dibs" intead of 'dibs_ui.py".
+
+* (EM) Sat Feb 08, 2003 (release 0.6)
+A number of bugs and misfeatures were fixed.  
+
+** Clarified the installation and configuration procedure in QUICKSTART.
+
+** Fixed a bug with port being used as an integer though it was a string.
+
+** Fixed a bug where the recover command decreased remote storage.
+
+** Made the outgoing queue dir use the peer name instead of email addr.
+
+** Added edit_peer, delete_peer and forget commands.
+
+** Added more tests
+
+** Fixed the process_message and send_message commands so that if an
+   error occurs, they move the offending file to a temporary directory.
+
+** Made incoming/outgoing file names start with creation time in ms.
+
+* (EM) Sun Feb 02, 2003 (release 0.5)
+A number of bugs and misfeatures were fixed.  
+
+** The user interface now looks a little more standard in that options
+   are passed with -- (e.g., --file foo.txt).
+
+** More documentation was added.
+
+** An automated test was added in the tests/daemon directory.
+
+** The add_peer command now interprets the local_quota and
+   remote_quota values as kilo-bytes not bytes.
+
+** Bugs in trying to grab environment variables in dibs_options.py
+   were fixed.
+
+* (EM) Thu Jan 02, 2003
+Added socket based communication to replace email, fixed some bugs,
+and added documentation.
+

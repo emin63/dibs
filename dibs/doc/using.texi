@@ -1,0 +1,135 @@
+
+
+@menu
+* The DIBS daemon::             
+* Automated Backup::            
+* Manual Backup::               
+* Recovering Files::            
+* Recovering Everything::            
+* Database Management::         
+@end menu
+
+@node The DIBS daemon
+@section The DIBS daemon
+
+The preferred way to use DIBS is by running the DIBS daemon in the
+background.  The daemon listens for and automatically processes
+incoming messages from peers, and automatically backs up any files,
+directories, or links in the directory @file{~/.dibs/autoBackup} (or
+whatever you have @ref{autoBackupDir} set to).  To start the daemon,
+use the command @samp{dibs start_daemon}.  For peers to contact your
+DIBS client, @strong{YOU MUST HAVE THE DIBS DAEMON RUNNING}.
+
+If you have the @samp{screen} program available, the best way to start
+the DIBS daemon is inside a screen session.  That way you can view
+what the daemon is doing inside your screen session.  If you plan to
+run the daemon without a connection to a console (e.g., if you want to
+start the daemon and then close your terminal window) you should
+redirect the output to @file{/dev/null}.
+
+@node Automated Backup
+@section Automated Backup
+
+The simplest way to use DIBS is to put links to any data you want
+backed up in the directory @file{~/.dibs/autoBackup} (or whatever you
+have @ref{autoBackupDir} set to).  Periodically, the DIBS daemon will
+execute the @ref{auto_check} command which will make DIBS
+incrementally backup your data.  Alternatively, if you want the
+contents of this directory backed up immediately you can issue the
+@ref{auto_check} command manually.
+
+
+@node Manual Backup
+@section Manual Backup
+
+If you want to backup a particular file or directory, or write
+scripts to use DIBS for more sophisticated backup use the 
+@ref{store} command.  For example, to backup everything in your mail
+directory you would do
+@example
+dibs.py store --name mail
+@end example
+This will cause DIBS to recursively traverse @samp{mail} and incrementally 
+store any files it encounters.  In this context, incrementally means that
+a file is only sent to peers if no previous backup exists or if the
+previous backup differs from the current version of the file.
+
+If you want to backup the same data under different names you can use the 
+@samp{--as} option to the @samp{store} command.  For example, on a UNIX system you could set up a CRON job to execute the following command every day:
+@example
+dibs.py store --name mail --as mail.`date +%a`
+@end example
+This would cause dibs to have seven versions of the directory
+@samp{mail} backed up: mail.Mon, mail.Tue, etc.  Each day of the week,
+DIBS would compare the mail directory to the backup it made one week
+ago and re-backup any new files or files which have changed.
+
+@node Recovering Files
+@section Recovering Files
+
+You can recover a file with the command
+@example
+dibs.py recover_file --file @var{FILENAME}
+@end example
+
+Note that @var{FILENAME} must correspond to the name which you stored
+the file as.  The @ref{auto_check} command stores data with the root
+obtained by concatenating the @samp{rootDir} variable with the
+@samp{autoBackup} variable.  On UNIX, the @samp{rootDir} variable
+defaults to @samp{/}.  So, on a UNIX system, if you want to recover
+the file foo stored in @file{~/.dibs/autoBackup} (or whatever you have
+@ref{autoBackupDir} set to), you would use the command
+@example
+dibs.py recover_file --file /autoBackup/foo
+@end example
+
+This begins the recovery procedure.  DIBS will email you when the file
+is fully recovered unless you have set the value of
+@ref{mailUserOnRecovery} to 0.
+
+@node Recovering Everything
+@section Recovering Everything
+
+If you suffer a major data loss you probably do not want to go through
+the tedious process of recovering every file individually.  To recover everything all at once, you can use the command
+@example
+dibs.py recover_all
+@end example
+This causes DIBS to send a @samp{RECOVER_ALL} message to all peers
+asking them to send back everything.
+
+A major feature of the @samp{recover_all} command is that it only
+requires the list of peers you are trading data with and does not need
+the rest of the database.  Thus if you have the
+@samp{dibs_database.peerDatabase} (either stored in @samp{~/.dibs} or
+wherever the @ref{DIBS_DIR} variable points to) and your GPG key, you
+can use the recover_all command to recover from complete data loss.  
+
+At first it may seem like the requirement of keeping your
+@samp{dibs_database.peerDatabase} and your GPG key safe defeat the
+purpose of automated backup.  After all if you had secure file storage
+in the first place, why would you need DIBS?  The answer is that these
+two pieces of information take very little room and do not change
+often.  Thus it is quite feasible to save your
+@samp{dibs_database.peerDatabase} and GPG key to a floppy, CD, or even
+paper, and then put this information in a safe place (e.g., a friend's
+house, a safe deposit box, or in a fireproof safe in your basement).
+
+@node Database Management
+@section Database Management
+
+If you want to clear out all the files other peers are storing for
+you, you can execute the command
+
+@samp{dibs.py clear}
+
+This tells all peers to stop storing files for you.  It is especially
+useful if DIBS gets into a weird state due to errors.
+
+Note that issuing the clear command only tells peers to stop storing
+stuff for @strong{YOU}, but doesn't make your DIBS client stop storing
+stuff for them.  If you want to drop all the storage for a particular
+peer, you can use the @ref{forget} command.  See the documentation for
+@ref{clear}, @ref{forget}, @ref{edit_peer}, and @ref{delete_peer} for
+more information.
+

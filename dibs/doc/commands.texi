@@ -1,0 +1,613 @@
+DIBS commands can all be issued in either of two ways: through the
+command line or through the graphical user interface (GUI), which can
+be started by issuing the @samp{dibs.py} command with no arguments.
+To be complete and precise, this manual describes the command line
+version.
+
+
+On the command line, DIBS commands are issued using the following syntax:
+
+@code{dibs @var{ARGNAME1} @var{ARGVAL1} @var{ARGNAME2} @var{ARGVAL2} ...}
+
+where @var{ARGNAME1} is an argument name starting with @samp{--} and
+@var{ARGVAL1} is the corresponding argument value.  For example, to
+store the file @file{~/foo/bar.txt} the following syntax would be used
+
+@example
+dibs.py store --name ~/foo/bar.txt
+@end example
+
+This rest of this section describes the commands available in DIBS.  
+Optional arguments are enclosed in brackets.
+
+@c Use texinfo-all-menus-update to update the menu.
+
+@c Use texinfo-every-node-update to update the nodes.
+@c After calling texinfo-every-node-update make sure
+@c to set the last two args for the first @node command
+@c to ``Commands'' and set the last arg for every other
+@c @node command to ``Commands''.  You can do the latter
+@c using the following macro:
+@c (fset 'insert-commands-for-up-field
+@c   "\C-s@node\C-e, Commands")
+
+
+
+@menu
+* add_peer::                    
+* delete_peer::                 
+* edit_peer::                   
+* start_daemon::                
+* stop_daemon::
+* forget::                      
+* auto_check::                  
+* clear::                       
+* store::                       
+* unstore_file::                
+* recover_file::                
+* recover_all::                
+* show_database::               
+* cleanup::                     
+* poll_passives::                
+* probe::
+* process_message::             
+* send_message::                
+* send_hello::
+* merge_stats::
+* post_contract::
+* unpost_contract::
+* propose_contract::
+@end menu
+
+@node add_peer, delete_peer, Commands, Commands
+@subsubsection add_peer
+@dibsCom{add_peer,--peer @var{PEER} --email @var{EMAIL}
+ --remote_quota @var{REMOTE_QUOTA} --local_quota @var{LOCAL_QUOTA}
+ --comment  @var{COMMENT} --talk @var{TALK} --host @var{HOST} 
+ @optional{ --port @var{PORT}}}
+
+@table @code
+@item --peer @var{PEER}
+Name of the GPG key for the peer specified as the email address of the
+GPG key.
+
+@item --email @var{EMAIL}
+Email address of the peer.  Messages are sent to this address on certain
+types of errors.
+
+@item --remote_quota @var{REMOTE_QUOTA}
+Amount of space in kilo-bytes that the peer will allow your client.
+
+@item --local_quota @var{LOCAL_QUOTA}
+Amount of space in kilo-bytes that you will allow the peer on your
+client.
+
+@item --talk @var{TALK}
+This must be one of @samp{active}, @samp{passive}, or @samp{mail} and
+specifies how your client will communicate to the peer
+@xref{Flexible Communication Modes}.  If you can
+directly connect to your peer (e.g., 
+there are no intervening firewalls), then you should probably use
+@samp{active} mode.
+
+@item --listen @var{LISTEN}
+This must be one of @samp{active}, @samp{passive}, or @samp{mail} and
+specifies how your client will receive communication from the peer
+@xref{Flexible Communication Modes}.  If your peer can directly connect
+to you peer (e.g., 
+there are no intervening firewalls), then you should probably use
+@samp{active} mode.
+
+@item --host @var{HOST}
+This specifies the name or IP address of the peer's host.
+
+@item --comment @var{COMMENT}
+This specifies a string which serves as a comment for the peer.
+
+@item --port @var{PORT}
+This specifies the port the peer will listen on for direct connections.
+It is only used if @var{TALK} is @samp{active}.  
+This is an optional argument, with a default value of 6363.
+
+@end table
+
+The add_peer command is used to create an entry in the database for
+trading files with a peer.  For example, if you wanted to trade files
+with me where I store 1 MB for you and you store 5 MB for me you would
+issue the command:
+
+@samp{dibs.py add_peer --email emin@@allegro.mit.edu --peer
+emin.dibs@@alum.mit.edu --local_quota 5000 --remote_quota 1000
+--comment "trade with emin" --talk active --listen active --host martinian.com}
+
+A @samp{k}, @samp{m}, @samp{g}, or, @samp{t} can be appended to a quota
+indicating that the number should interpreted as kilo-bytes (the default
+if no letter is appended), mega-bytes, giga-bytes, or tera-bytes.  For
+example, the @samp{--local_quota 5000} in the example above could be
+replaced by @samp{--local_quota 5M} NOT @samp{--local_quota 5K}.
+
+@node delete_peer, edit_peer, add_peer, Commands
+@subsubsection delete_peer
+@dibsCom{delete_peer,--peer @var{PEER}}
+@table @code
+@item --peer @var{PEER}
+Specifies the peer to delete.
+@end table
+
+This command removes @var{PEER} from your database and sends an email
+to the email address associated with @var{PEER} to this effect.  This
+command can only be executed if you are not storing anything for
+@var{PEER} and @var{PEER} is not storing anything for you
+(@pxref{forget}, @ref{clear}).
+
+@node edit_peer, start_daemon, delete_peer, Commands
+@subsubsection edit_peer
+@dibsCom{edit_peer,--peer @var{PEER} 
+ @optional{ --email @var{EMAIL}}
+ @optional{ --remote_quota @var{REMOTE_QUOTA}} 
+ @optional{ --local_quota @var{LOCAL_QUOTA}}
+ @optional{ --comment  @var{COMMENT}}
+ @optional{ --talk @var{TALK}}
+ @optional{ --host @var{HOST}}
+ @optional{ --port @var{PORT}}}
+
+See @ref{add_peer} for a description of the arguments.
+This command changes the value of one or more entries for @var{PEER}.
+It is an error to decrease @var{REMOTE_QUOTA} or @var{LOCAL_QUOTA}
+below the respective storage amount.  The current storage amount can be
+seen via @ref{add_peer}.
+
+@node start_daemon, forget, edit_peer, Commands
+@subsubsection start_daemon
+@dibsCom{start_daemon, }
+
+This command starts the DIBS daemon.  
+
+The daemon must be running for
+DIBS to automatically send and respond to messages from peers and to
+automatically backup the data you place in the directory named by the
+@ref{autoBackupDir} option.  For more information about the DIBS
+daemon, @xref{The DIBS daemon}.
+
+@node forget, stop_daemon, start_daemon, Commands
+@subsubsection forget
+@dibsCom{forget,--peer @var{PEER}}
+@table @code
+@item --peer @var{PEER}
+Name of the peer to forget.
+@end table
+
+This command forgets all the files stored for @var{PEER} on the local
+machine and sends a message to @var{PEER} about this.  The forget
+command is useful if you want to decrease the amount of storage
+allocated to @var{PEER}, terminate your relationship with peer
+(@pxref{delete_peer}), or if your DIBS database gets into a weird state.
+
+Since this command informs @var{PEER} that files are being forgotten,
+the database of @var{PEER} will be properly synchronized (i.e., the
+database of @var{PEER} will indicate that you are not storing any files
+for @var{PEER}).
+
+@node stop_daemon, auto_check, forget, Commands
+@subsubsection stop_daemon
+@dibsCom{stop_daemon, }
+
+This command asks the daemon on the local machine (IP address
+127.0.0.1) listening at the port specified by the @samp{daemonPort}
+variable to stop immediately.
+
+@node auto_check, clear, stop_daemon, Commands
+@subsubsection auto_check
+@dibsCom{auto_check, }
+
+This command checks files in the auto backup directory @ref{autoBackupDir}
+and backs up any new files or files that have changed.
+
+@node clear, store, auto_check, Commands
+@subsubsection clear
+@dibsCom{clear, }
+This command sends unstore requests to peers to unstore all the files
+stored by your client.  
+
+@node store, unstore_file, clear, Commands
+@subsubsection store
+@dibsCom{store, --name @var{ITEM} @optional{--as @var{SNAME}}} 
+
+@table @code
+@item --name @var{ITEM}
+This specifies the path of the file or directory to store.
+
+@item --as @var{SNAME}
+This specifies what name to store @var{ITEM} under.  If
+omitted, @var{SNAME} defaults to @var{ITEM}.
+
+@end table
+
+This
+command causes DIBS to (incrementally) store the file or directory
+with peers.  If a directory is given, its contents are recursively
+stored.  If a file which is already stored is encountered and it is
+unchanged, nothing happens.  If an already stored file is encountered
+and the backed up version is different than the current version, the
+old version is unstored and the new version is backed up in its place.
+
+@node unstore_file, recover_file, store, Commands
+@subsubsection unstore_file
+@dibsCom{unstore_file,--file @var{FILENAME}}
+@table @code
+@item --file @var{FILENAME}
+Specifies the name of the file to unstore.  
+@end table
+
+This command causes DIBS to ask peers to unstore the named file.
+Note that if an item was stored via
+@example
+dibs.py store --file foo --as bar
+@end example
+it should be unstored via
+@example
+dibs.py unstore_file --file bar.
+@end example
+
+
+
+@node recover_file, recover_all, unstore_file, Commands
+@subsubsection recover_file
+@dibsCom{recover_file,--file @var{FILENAME}}
+
+@table @code
+@item --file @var{FILENAME}
+Specifies the name of the file to recover. 
+@end table
+
+Ask peers to send us pieces of @var{FILENAME} which they are storing.
+Note that if an item was stored via
+@example
+dibs.py store --file foo --as bar
+@end example
+it should be recovered via
+@example
+dibs.py recover_file --file bar.
+@end example
+
+@node recover_all, show_database, recover_file, Commands
+@subsubsection recover_all
+@dibsCom{recover_all, }
+
+This command asks all peers to send back everything they are storing.
+This command can be used to recover from complete data loss.  See
+@ref{Recovering Everything} for more details.
+
+@node show_database, cleanup, recover_all, Commands
+@subsubsection show_database
+@dibsCom{show_database, @optional{--only @var{WHICH}}}
+
+This command prints a representation of the DIBS database.  If the
+optional @samp{--only} option is used with @var{WHICH} being one of
+@samp{peers}, @samp{files}, @samp{stats}, or @samp{recovery},
+@samp{probe}, @samp{storage}, @samp{posted_contracts},
+@samp{proposed_contracts},  then only the indicated portion of the
+database is printed.  For example, the command
+@example
+dibs.py show_database --only peers
+@end example
+would display only the peers in the database and not the files or
+recovery status.
+
+@node cleanup, poll_passives, show_database, Commands
+@subsubsection cleanup
+@dibsCom{cleanup, }
+Cleanup empty files and directories.  Use this after you use this after 
+calling @ref{forget}, after a peer issues the uses the @ref{clear}
+command, or every once in a while to keep things clean and efficient.
+
+DIBS keeps the data your are storing for peers in a tree of
+directories.  Since the file name for a piece of data is determined by
+the MD5 hash of the data, a file name might look like
+@samp{380b90f17c9c908d0e59cf0fb1c8e461}.  This file would be stored in
+the path
+@file{@env{DIBS_DIR}/<peer>/3/8/0/b/380b90f17c9c908d0e59cf0fb1c8e461}.
+Once you stop storing this piece of data the directory
+@samp{@file{@env{DIBS_DIR}/<peer>/3/8/0/b/}} still remains.  The
+cleanup command goes through your DIBS directory and removes such
+directories which no longer contain any files.
+
+@node poll_passives, probe, cleanup, Commands
+@subsubsection poll_passives
+@dibsCom{poll_passives, }
+Poll any peers who are passive (i.e., can not connect to us directly).
+If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+@node probe, process_message, poll_passives, Commands
+@subsubsection probe
+@dibsCom{probe,@optional{ --file @var{FILENAME}}} 
+
+Ask all peers
+storing a file to verify that they are actually storing it.  With no
+arguments, this command probes a random file.  This command is called
+automatically (with no arguments) by the daemon started via
+@ref{start_daemon}.
+
+
+@node process_message, send_message, probe, Commands
+@subsubsection process_message
+@dibsCom{process_message,@optional{ --file @var{FILENAME}} }
+
+@table @code
+@item --file @var{FILENAME}
+This optional argument specifies the name of a file containing a DIBS
+protocol message to be processed.
+@end table
+
+This command reads the DIBS protocol
+message in @var{FILENAME} and takes the appropriate actions.  If no
+argument is provided then all messages in the incoming directory are
+processed. 
+
+If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+@node send_message, send_hello, process_message, Commands
+@subsubsection send_message
+@dibsCom{send_message, @optional{--file @var{FILENAME} --peer
+@var{PEER} }}
+
+@table @code
+@item --file @var{FILENAME}
+This optional argument specifies the name of a file containing a DIBS
+protocol message to be sent.
+
+@item --peer @var{PEER}
+This optional argument specifies who to send @var{FILENAME} to.
+@end table
+
+This command reads the DIBS protocol
+message in @var{FILENAME} sends it to @var{PEER}.  If no
+argument is provided then all messages in the outgoing directory are
+sent to the appropriate peers.
+
+If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+
+@node send_hello, merge_stats, send_message, Commands
+@subsubsection send_hello
+@dibsCom{send_hello, --host @var{HOST} --port @var{PORT}}
+
+@table @code
+@item --host @var{HOST}
+Specifies the host to contact.
+
+@item --port @var{PORT}
+Specifies the port to use.
+@end table
+
+This command sends a hello message to the DIBS daemon listening on the
+specified machine to check if the peer is alive.  The recipient should
+respond with a message listing the version of DIBS it is running.
+
+@node merge_stats, post_contract , send_hello, Commands
+@subsubsection merge_stats
+@dibsCom{merge_stats, }
+
+This command merges all the statistics records in the statistics
+directory into the database.  The @ref{show_database} command can be
+used to see the current statistics.
+
+
+@node post_contract,  unpost_contract, merge_stats, Commands
+@subsubsection post_contract
+@dibsCom{post_contract, 
+        --min_quota @var{MIN_QUOTA} 
+        --max_quota @var{MAX_QUOTA}
+        --quota_mult @var{QUOTA_MULT}
+        --lifetime @var{LIFETIME}
+        @optional{--talk @var{TALK}}
+        @optional{--listen @var{LISTEN}}
+        @optional{--contract_name @var{CONTRACT_NAME}}
+        @optional{--url @var{URL}}
+        @optional{--host @var{HOST}}
+        @optional{--port @var{PORT}}}
+
+@table @code
+
+@item --min_quota @var{MIN_QUOTA}
+The minimum quota the poster wants a potential peer to provide.  By
+default, space is specified in kilo-bytes as for @ref{add_peer}, but
+@samp{m}, @samp{g}, or @samp{t} can be appended to a number to indicate
+megabytes, gigabytes, or terabytes.
+
+@item --max_quota @var{MAX_QUOTA}
+The maximum quota the poster wants a potential peer to provide specified
+in the format as for @var{MIN_QUOTA}.
+
+@item --quota_mult @var{QUOTA_MULT}
+The minimum ratio of space which the potential peer will provide to the
+space the potential peer will receive in return from the poster.
+
+@item --lifetime @var{LIFETIME}
+The amount of time (in seconds) the contract will remain on the contract
+server.  After this amount of time has passed, the contract server may
+delete the posted contract.
+
+
+@item --talk @var{TALK}
+Must be one of @samp{active}, @samp{passive}, or @samp{any} and
+specifies the talk mode the poster will use in communicating with the
+potential peer if the contract is accepted.
+
+@item --listen @var{LISTEN}
+Must be one of @samp{active}, @samp{passive}, or @samp{any} and
+specifies the listen mode the poster will use receiving communications from the
+potential peer if the contract is accepted.
+
+@item --contract_name @var{CONTRACT_NAME}
+Specifies a name for the contract.  By default, a name is automatically
+generated for each contract.  Usually using the default name is best and
+there is no need to explicitly specify a name.  Occasions where you
+would want to explicitly specify a name include if you want to be able
+to ask a friend or associate to respond to a particular contract you
+posted specifically for him or if you are using DIBS in automated
+scripts.
+
+@item --url @var{URL}
+The URL to post the contract to.  If no URL is provided then the value
+of the @samp{defaultContractServerURL} will be used.  Also, @code{--url
+none} is specified then the contract is not posted to any contract
+server.  Using the @samp{post_contract} command and not posting the
+contract to any URL is pointless, but this can be useful for testing
+purposes.
+
+@item --host @var{HOST}
+The host name of the poster's DIBS client.  By default, this is obtained
+from the @ref{hostname} variable and should not need to be specified on
+the command line except in special situations.
+
+@item --port @var{PORT}
+The port where the poster's DIBS daemon will be listening for
+connections.  By defualt, this is obtained from the @ref{daemonPort}
+variable and should not need to specified on the command line except in
+special situations.
+@end table
+
+The @samp{post_contract} command posts an advertisement for a trading
+contract to a server (@pxref{Peer Finder}).  Someone else can then
+propose a specific contract matching the posted parameters using the
+@samp{propose_contract} command.  If the contract is accepted, then GPG
+keys are exchanged and the appropriate modifications are made to the
+database of the poster and proposer without the need to manually use the
+@samp{add_peer} or @samp{edit_peer} commands.
+
+@node unpost_contract, propose_contract, post_contract, Commands
+@subsubsection unpost_contract
+@dibsCom{unpost_contract, 
+        --contract_name @var{CONTRACT_NAME} 
+        @optional{--url @var{URL}}} 
+
+This command unposts the contract
+with name @var{CONTRACT_NAME} previously posted with
+@ref{post_contract}.  By default, the URL to unpost from is obtained
+from the @ref{defaultContractServerURL} variable and should not need to
+be specified.
+
+Also, if @code{--url none} is specified then the named contract is
+removed from the DIBS database but the contract server is not contacted.
+Generally this would be a bad idea, but it can be useful if contract
+server has removed (or never received) the contract in question and you
+now want to remove the contract from your DIBS database.
+
+@node propose_contract,  , unpost_contract, Commands
+@subsubsection propose_contract
+@dibsCom{propose_contract,
+        --contract_name @var{CONTRACT_NAME}
+        --local_quota @var{LOCAL_QUOTA}
+        --remote_quota @var{REMOTE_QUOTA}
+        @optional{--talk @var{TALK}}
+        @optional{--listen @var{LISTEN}}
+        @optional{--host @var{HOST}}
+        @optional{--peer @var{PEER}}
+        @optional{--url @var{URL}}
+        @optional{--peer_host @var{PEER_HOST}}
+        @optional{--peer_port @var{PEER_PORT}}
+        @optional{--peer_email @var{PEER_EMAIL}}}
+
+Before describing the arguments, we point out that all the arguments that
+do @emph{not} start with @samp{--peer_} are from the point of view of
+the peer @emph{not} the poster.
+
+@table @code
+@item --contract_name @var{CONTRACT_NAME}
+Name of the contract the proposer is responding to.  This should be the
+name displayed on the peer finder service the contract is posted on.
+
+@item --local_quota @var{LOCAL_QUOTA}
+Amount of space the poster will allow for the proposer, i.e., this is
+equivalent to what the poster would enter as the @samp{--local_quota}
+argument if he were to use the @samp{add_peer} command to implement the
+proposed contract. 
+
+@item --remote_quota @var{REMOTE_QUOTA}
+Amount of space the proposer will get from the poster, i.e., this is
+equivalent to what the poster would enter as the @samp{--local_quota}
+argument if he were to use the @samp{add_peer} command to implement the
+proposed contract. 
+
+@item @optional{--talk @var{TALK}}
+The method the poster should use to communicate to the proposer, i.e.,
+this is equivalent to what the poster would enter as the @samp{--talk}
+argument if he were to use the @samp{add_peer} command to implement the
+proposed contract.  If this is not provided, then it is obtained from
+the posted contract.
+
+@item @optional{--listen @var{LISTEN}}
+The method the proposer will use to communicate to the poster, i.e.,
+this is equivalent to what the poster would enter as the @samp{--listen}
+argument if he were to use the @samp{add_peer} command to implement the
+proposed contract.  If this is not provided, then it is obtained from
+the posted contract.
+
+@item @optional{--host @var{HOST}}
+The name of the machine for the proposer's DIBS client, i.e.,
+this is equivalent to what the poster would enter as the @samp{--host}
+argument if he were to use the @samp{add_peer} command to implement the
+proposed contract.  Usually this is obtained from the contract and
+should not be specified.
+
+@item @optional{--peer @var{PEER}}
+The name of the GPG key for the peer, i.e.,
+this is equivalent to what the poster would enter as the @samp{--peer}
+argument if he were to use the @samp{add_peer} command to implement the
+proposed contract.  Usually this is obtained from the contract and
+should not be specified.
+
+@item @optional{--url @var{URL}}
+The URL to use to obtain contract information for @var{CONTRACT_NAME}.
+By default, @var{defaultContractServerURL} is used.
+
+@item @optional{--peer_host @var{PEER_HOST}}
+The name of the host for the poster's DIBS client.  Usually, this is
+obtained form the posted contract information and should not need to be
+specified directly.
+
+@item @optional{--peer_port @var{PEER_PORT}}
+The port where the poster's DIBS client listens for incoming
+connections.  Usually, this is obtained form the posted contract
+information and should not need to be specified directly.
+
+@optional{--peer_email @var{PEER_EMAIL}} The email address to use in
+contacting the poster.  Usually, this is obtained form the posted
+contract information and should not need to be specified directly.
+
+@end table
+
+The @samp{propose_contract} command proposes a specific contract within
+the parameters of the posted contract specified by @var{CONTRACT_NAME}.
+Specifically, if the poster accepts incoming connections, the proposer's
+DIBS client will attempt to contact the poster.  
+
+Once contacted, the poster will examine the proposed contract and
+respond with an automated email to the proposer describing its decision.
+If the proposed contract is accepted by the poster, then the poster will
+attempt to contact the proposer's DIBS client to exchange GPG keys, and
+enter the trading relationship in each client's database.
+
+Thus if both poster and proposer accept incoming connections, the
+trading relationship should be automatically established and trading
+will commence as usual.  If either the poster or proposer is behind a
+firewall and requires passive mode, things are more complicated.  
+
+If the proposer is behind a firewall and cannot accept incoming
+connections, then it will not be able to obtain the poster's response to
+a proposal until it issues a @samp{poll_passives} command and followed
+by a @samp{process_message} command to the poster.  The DIBS daemon
+should eventually do this automatically, but the impatient user may wish
+to manually issue these commands after a contract is proposed.
+
+If the poster is behind a firewall and cannot accept incoming
+connections, then things are even more complicated.  In this case, there
+is no way that the proposer can contact the poster to initiate a
+proposal.  Thus, posting a contract for a DIBS client which cannot
+accept incoming connections because it is behind a firewall is generally
+not a good idea.
+

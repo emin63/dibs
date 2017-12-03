@@ -1,0 +1,445 @@
+\input texinfo.tex      @c -*-texinfo-*-
+
+@setfilename dibs-faq.info
+@settitle Frequently asked questions about DIBS (with answers)
+
+@setchapternewpage off
+
+@titlepage
+@title DIBS FAQ
+@subtitle Frequently asked questions about DIBS
+@sp 1
+@author Emin Martinian
+@page
+@end titlepage
+
+@node Top, General Questions, (dir), (dir)
+@top
+@unnumbered Preface
+@cindex FAQ for DIBS, latest version
+
+This is a list of frequently asked questions (FAQ) for DIBS users.
+
+@menu 
+
+* General Questions::
+* Installation::
+* Technical Questions::
+
+@end menu
+
+@node General Questions
+@chapter General Questions
+
+@menu
+* What is DIBS?::             
+* What prevents peers from seeing my private data?::
+* But what if somebody breaks the encryption?::
+* How does DIBS send/receive files?::
+* Why doesn't DIBS use rsync?::
+* I backup data between my two machines; why do I need DIBS?::
+* How does DIBS provide high robustness to failures?::
+* Why is DIBS written in Python?::
+@end menu
+
+@node What is DIBS?
+@section What is DIBS?
+
+The goal of the Distributed Internet Backup System (DIBS) is to
+provide a simple, secure, and robust system for backing up data by
+exchanging it with peers on the Internet.  DIBS is inspired by the idea
+that since disk drives are cheap, backup should be cheap too. 
+
+Of course, mirroring your own data by adding more disks to your computer
+is less than ideal because a fire, flood, power surge, etc. could still
+wipe out your local data center.  Instead, you should give your files to
+peers (and in return store their files) so that if a catastrophe strikes
+your area, you can recover data from surviving peers.  DIBS is designed
+to implement this vision.
+
+Note that DIBS is a backup system not a file sharing system like
+Napster, Gnutella, Kazaa, etc. In fact, DIBS automatically encrypts all
+data transmissions so that the peers you exchange files with can not access
+your data.
+
+@node What prevents peers from seeing my private data?
+@section What prevents peers from seeing my private data?
+
+DIBS automatically encrypts all data which it sends to peers for backup
+using Gnu Privacy Guard (GPG).  See @uref{http://www.gnupg.org/} for more
+information.  
+
+@node But what if somebody breaks the encryption?
+@section But what if somebody breaks the encryption?
+
+While it is possible that breakthroughs in cryptography, quantum
+computing or other fields will allow crack the encryption 
+employed by DIBS, it is probably unlikely in the next couple of decades.
+Furthermore since almost every financial transaction which takes place
+on the Internet depends on the security of encryption, you will probably
+have much more serious problems if such encryption is broken.
+Having said that, it would be unwise to back up nuclear launch codes on DIBS.
+
+@c http://www.rsasecurity.com/rsalabs/challenges/index.html
+
+@node How does DIBS send/receive files?
+@section How does DIBS send/receive files?
+
+DIBS can communicate with peers in a number of ways.  The default way is
+for your DIBS peer to contact another peer using Python sockets.  This
+works best if both you and the peer you are contacting are on the
+same network.  If there is only one firewall between you and the peer,
+one of you can use passive mode.  In passive mode, the passive peer
+queues messages until contacted by the active peer.  If there is more
+than one firewall between you and a peer, DIBS can communicate over
+email (make sure you check with your system administrator before using
+this option).
+
+@node Why doesn't DIBS use rsync?
+@section Why doesn't DIBS use rsync?
+
+Rsync is a terrific program, but it wasn't designed for distributed,
+encrypted, backup using erasure correcting codes.  DIBS does do
+incremental backup in the sense that it only backs up files that
+have changed.
+
+@node I backup data between my two machines; why do I need DIBS?
+@section I backup data between my two machines; why do I need DIBS?
+
+DIBS uses Reed-Solomon codes (a type of erasure correcting code) to take
+maximum advantage of redundant copies.  An example, best illustrates the
+benefits of this approach.  
+
+Imagine that for every file you have on machine A, you store an
+identical copy on machine B.  This requires 100% redundancy in the sense
+that for every kilo-byte of data you want backed up you need an extra
+kilo-byte of backup.  The robustness this redundancy buys you is that if
+machine A goes down you can recover data from machine B.  Of course, if both
+machines go down then your data is lost.
+
+Let us compare this to what would happen if you instead stored your data
+with N DIBS peers and used 100% redundancy.  DIBS could take each file
+you want to backup and break it into N shares so that the original file
+can be recovered from any N/2 shares.  For example, if you had 10 DIBS
+peers, your data would be safe even if any five peers crashed, erased
+your data, or were otherwise unavailable.  If you had 100 DIBS peers,
+your data would be safe even if any 50 peers were unavailable.  Thus
+storing data with DIBS can give you dramatically higher levels of
+robustness for the same redundancy.
+
+For more details see the next entry.
+
+@node How does DIBS provide high robustness to failures?
+@section How does DIBS provide high robustness to failures?
+
+The short answer is DIBS uses Reed-Solomon (RS) codes which are an optimal
+type of erasure correcting code similar to what is used in high level
+RAID.  The advantages of RS codes are best illustrated by example.
+
+Imagine that you have three numbers, F_1, F_2, and F_3 (e.g.,
+representing pieces of a file) that you want to back up.  You could just
+store each number on a different machine, but then if any of those
+machines crash your data is lost.  To provide some robustness, you could
+make two copies of each number and store the 6 pieces each on a separate
+machine.  This scheme requires 100% redundancy in the sense that you are
+storing twice as much data as the original.  The robustness you get is
+that you can now tolerate the loss of any one machine.  Note that if
+both machines storing F_1 go down, though then you unrecoverably lose
+data.
+
+Now let us consider how an RS code would work.  You take the three
+numbers you want to store and "pretend" they are the coefficients of a
+parabola: y(x) = F_1 * x^2 + F_2 * x + F_3.  You then compute 6 points
+on this parabola (e.g., y(0), y(1), ..., y(5)) and store each of these
+on a different machine.  This scheme also requires 100% redundancy in
+the sense that you are storing twice as much data as the original (six
+numbers instead of three).  The benefit is that you can tolerate the
+loss of any three machines (as opposed to any one machine).  
+
+Specifically, to recover your data take any three points on the parabola
+(which you get from any three surviving machines), and use these three
+points to reconstruct the parabola.  Once you have the equation of the
+parabola, you can recover F_1, F_2, and F_3.  In general, you can
+recover any k degree polynomial via k+1 points on that polynomial.
+
+To summarize, storing k pieces of data by making c copies of each piece
+(for k*c total pieces), is robust to the loss of any c pieces.  Using RS
+codes (a generalization of the parabola example) to produce k*c total
+pieces, is robust to the loss of any k*c - k pieces.  Thus the RS codes
+used by DIBS are robust to k*c - k - c more losses than a simple
+repetition strategy.  
+
+@node Why is DIBS written in Python?
+@section Why is DIBS written in Python?
+
+Some of the reasons DIBS is written in Python include portability,
+readability, rapid development, the need to use GnuPG, and Python's large
+number of built-in features.  My initial goal for DIBS is to develop a
+useful prototype suitable for large scale distribution.  Based on the
+feedback and experience from using this prototype new features can be
+quickly incorporated into the overall design.  Once DIBS matures, it can
+be translated into another language for better performance.
+
+If you feel that there is a compelling need for DIBS to be implemented
+in another language, I encourage you to start such a project.  Two
+advantages of porting the Python implementation are that you can port
+Python to C/C++/Java piecemeal, and Python is fairly easy to read.
+
+
+@node Installation
+@chapter Installation
+
+@menu
+* Where do I get DIBS?::
+* How do I install it?::
+* Where is the documentation?::
+* Do I need to do anything special to use it on Windows?::
+@end menu
+
+@node Where do I get DIBS?
+@section Where do I get DIBS?
+
+You can download source and binary distributions of DIBS from
+@uref{dibs.sourceforge.net},
+@uref{http://www.csua.berkeley.edu/~emin/source_code/dibs/index.html},
+or search for the project @samp{DIBS} on @uref{sourceforge.net}.
+
+@node How do I install it?
+@section How do I install it?
+
+For a binary distribution, install as usual.  If you have the source
+distribution, you can install by entering the DIBS directory and
+issuing the command @samp{python setup.py install}.  This will install
+dibs.py either in a place like @samp{/usr/bin/dibs.py} on a UNIX
+system or in the @samp{Scripts} directory of your Python installatin
+on a Windows system.
+
+@node Where is the documentation?
+@section Where is the documentation?
+
+Once you install DIBS, the documentation is put into a place like
+@samp{/usr/doc/dibs} on a UNIX system or in the @samp{doc} directory
+of your Python installation.
+
+
+@node Do I need to do anything special to use it on Windows?
+@section Do I need to do anything special to use it on Windows?
+
+Yes and No.  DIBS should work fine on Windows, but the install might
+be a bit more complicated since many of the programs DIBS uses are
+installed by default on UNIX-like systems but not on windows systems.
+The following is a step-by-step guide for installing DIBS on a windows
+system.
+
+@enumerate
+@item  Install Python which you can get from www.python.org.  I put
+Python in @samp{C:\Python23}.  
+
+@item Install the Python windows extensions available from
+@uref{http://www.python.org/windows/win32com}. 
+
+@item Install GnuPG which you can download from
+@uref{http://www.gnupg.org}.  I put GnuPG in @samp{C:\GnuPG}.  GnuPG may have
+problems if you install it somewhere else.
+
+@item To run GPG commands, start a command prompt via
+@samp{Start->Accessories->Command Prompt} and type your GnuPG commands
+into the command prompt using @samp{C:\GnuPG\bin\gpg.exe ...} or the
+equivalent depending on where you put GnuPG. For example, you will
+probably need to create a key via @samp{C:\GnuPG\bin\gpg.exe
+--gen-key}.  Remember to use an empty passphrase for your dibs key.
+
+@item Install DIBS by double clicking on the windows DIBS installer.
+
+@item Find out where the dibs.py program was placed (e.g., click on
+"My Computer" and select search).  On my system, dibs.py got put in
+@samp{C:\Python23\Scripts\dibs.py}. 
+
+@item Open a command prompt (e.g., click on
+@samp{Start->Accessories->Command Prompt}) 
+
+@item Run the dibs program in the command prompt with the argument
+@samp{show_database}.  On my system, I would do 
+@example   
+   C:\Python23\Scripts\dibs.py show_database
+@end example
+
+@enumerate
+@item If that works, follow the rest of the instructions in the
+regular install section of the manual.   
+
+@item If that does not work, it may be because you have an older
+version of windows which does not associate @samp{.py} files with
+Python.  Find where @samp{python.exe} is (on my system, it is at
+@samp{C:\Python23\python.exe}).  Next, run DIBS commands by explicitly
+calling Python, e.g., 
+@example
+
+ C:\Python23\python.exe C:\Python23\Scripts\dibs.py show_database
+@end example
+
+If this works, you can call future DIBS commands in this manner.
+@end enumerate
+@end enumerate
+
+Beyond that, make sure to follow the instructions in the installation
+section of the manual about configuring your @samp{dibsrc.py} file.
+Specifically, you will probably need to put the location of your
+Python executable in @samp{dibsrc.py} and specify your SMTP server.
+
+@node Technical Questions
+@chapter Technical Questions
+
+@menu
+* How do I use recover_file between a passive and active peer?::
+* What if I delete files backed up via auto_check?::
+* What happens if DIBS tries to store a file it can't read?::
+* Are there any forbidden patterns for stored file names?::
+* How do you calculate the robustness/redundancy trade-off for DIBS?::
+@end menu
+
+@node How do I use recover_file between a passive and active peer?
+@section How do I use recover_file between a passive and active peer?
+
+The recover_file command works the same regardless of how the peers
+communicate.  However, if things don't seem to work or work REALLY
+slowly, it could be because the messages aren't being delivered as 
+fast as you would like.  
+
+Consider the following scenario.  You control two DIBS peers.  Peer A
+s behind a firewall and peer B is not but uses passive talk
+mode since it can not contact peer A directly.  You issue a
+recover_file command from peer A.  This causes peer A to send data to
+peer B asking for the file to be recovered.  Peer B digs out the
+necessary data and creates the outgoing DIBS messages, but since it
+can't connect to peer A directly, it has to wait for peer A to contact
+it again.  If peer A is running the DIBS daemon (which it should be),
+then the daemon will eventually issue the poll_passives command to
+contact peer B and get this data.
+
+If you want to make things work faster.  Issue the command
+poll_passives on peer A a little while after you issue the
+recover_file command.  This will cause peer A to contact peer B to get
+the messages that peer B has prepared.  Next issue the process_message
+command on peer A (with no arguments) to make peer A process the
+incoming messages.  This should make the recovered file appear in the
+recovery directory on peer A.
+
+If you don't have control over the other peer and you are
+communicating with them in passive mode (i.e., waiting for them to
+contact you since they are behind a firewall), all you can do is wait
+for their daemon to contact you.  I don't see anyway to speed this up
+besides increasing the poll interval (which you can do by setting
+daemonTimeout option).  If you have other suggestions, please contact
+the DIBS development team.
+
+
+@node What if I delete files backed up via auto_check?
+@section What if I delete files backed up via auto_check?
+
+Basically nothing happens.  The files that were backed up stay backed
+up and are not affected via further invocations of auto_check.  For
+example, assume you have a directory foo containing the files bar and baz.
+You put a link to foo in the autoBackup directory so it gets automatically
+backed up via the auto_check command.  After a while you delete foo/baz.
+Later invocations of auto_check DO NOT remove the backup of foo/baz.
+If you want the backup of foo/baz removed, you must do it manually using
+the unstore_file command.
+
+This may disturb you if you often delete files in directories backed
+up via auto_check since you may end up with lots of delete files which
+are still backed up.  One thing you can do to prevent this is occasionally
+issue the clear command which will cause all of your current backups to
+be dropped (and hopefully re-backed up with auto_check).  The problem with 
+using clear is that re-backing up all your data will take significantly
+longer than doing incremental backups.
+
+I'm open to suggestions on what should happen to backups of files made
+via auto_check once the originals are deleted.  Contact me if you have 
+strong feelings or a good argument for an alternative implementation.
+
+
+@node What happens if DIBS tries to store a file it can't read?
+@section What happens if DIBS tries to store a file it can't read?
+
+If DIBS attempts to store a file it can't read either because the
+``file'' is a dangling symbolic link or because the user doesn't 
+have permission to read the file, then DIBS prints (and logs) a
+warning and continues without storing the file.  This behavior is
+important since when DIBS is automatically backing up data via
+the auto_check command or from one of your own scripts, you don't
+want it to die due to bad links or bad permissions.
+
+@node Are there any forbidden patterns for stored file names?
+@section Are there any forbidden patterns for stored file names?
+
+Yes.  The pattern in the variable fileSeparator in the file
+dibs_constants.py is not allowed to be in any file names you give to
+DIBS.  (The value of the fileSeparator should be @samp{@@@@DIBS@@@@} unless
+you have changed it).  If you try and store a file with this forbidden
+pattern in the name, DIBS will print and log a warning and transform
+the file name to something acceptable.
+
+@node How do you calculate the robustness/redundancy trade-off for DIBS?
+@section How do you calculate the robustness/redundancy trade-off for DIBS?
+
+For example, imagine you have 10 participants all with about 10MB of
+files they want to share.  They all want to have N/2 = 5-fold
+redundancy. How much disk space does each one need to offer up to
+their peers for storage?
+
+Short Answer: To be able to recover the file if 5 out of 9 peers crash
+(9 peers + you = 10 participants), each peer needs to provide a total
+of 22.5 MB of storage.
+
+Long Answer: Imagine that you have a 10 MB file that you want to
+distribute among 9 peers (there are 10 participants total including
+yourself).  The simplest thing is to cut the file into 10/9 MB chunks
+and send each chunk to a different peer. There is no redundancy in
+this method: if any peer loses a chunk you can't recover (unless you
+kept a copy yourself, but in that case you wouldn't need to recover
+from backup anyway). On the other hand, the total storage required is
+only 10 MB (10/9 MB for each of the 9 peers). Each peer would have to
+provide 10/9 MB to every other peer resulting in each peer providing a
+total of 10 MB to others.
+
+A simple way to get redundancy is to give each peer a copy of the
+entire file. With this method, as long as at least one peer doesn't
+lose his chunk, the file can be recovered. The problem is that the
+total storage required is 90 MB (9 copies of the 10 MB file). Each
+peer would have to provide 10 MB to every other peer resulting in each
+peer providing a total of 90 MB to others.
+
+With Reed-Solomon coding you can get trade-offs in between. For
+example, you could chop the original file into 9 chunks of 10/4=2.5 MB
+using a Reed-Solomon code and give each peer 1 chunk. Then as long as
+10 MB worth of data (i.e., 4 2.5MB chunks) survive, you can recover
+the file.  Thus there is no problem as long as half of the 10 people
+(yourself and 9 peers) survive.
+
+To get the general formula, imagine you have a file of size S bits to
+distribute among N peers and you want to be able to recover the file
+from the peers even if any P peers crash. You divide up the file into
+N chunks of size S/(N-P) and give each peer one chunk. Provided that
+at least N-P peers survive, you can combine those N-P chunks (which
+comprise S/(N-P) bits per chunk * N-P chunks = S bits) to recover the
+original file. Each of the N peers will have to store one chunk of
+size S/(N-P) for every other peer which means each peer will provide
+S/(N-P) * N bits of storage.
+
+The best way to think about Reed-Solomon coding is imagine that a file
+is like water. If you want to make sure you can get 1 liter of water
+(i.e., a 1 MB file) even if P out of N canteens get lost (i.e., P out
+of N peers crash), you need to put 1/(N-P) liters of water in each of
+the N canteens. That way the 1/(N-P) liters in each canteen times the
+N-P surviving canteens give you 1 liter of water total.
+
+@c Related projects
+@c faubackup
+@c bacula
+@c duplicity
+@c intermemory
+
+@bye
+
+

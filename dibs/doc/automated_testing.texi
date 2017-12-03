@@ -1,0 +1,113 @@
+
+DIBS provides various scripts for automated testing.  These automated
+tests will probably be most useful to developers, but users may find
+them useful in diagnosing problems.
+
+Furthermore, in addition to adding more tests, one quality assurance
+goal of DIBS is to add an automated test for each bug which is reported
+or fixed to verify the existence of the bug and its resolution.
+Ideally, advanced users should be able to submit a bug report by
+creating a new automated test which demonstrates the bug.  
+
+The testing suite is currently too complicated and poorly documented to
+reach this goal.  But as a first step in achieving better testing and
+quality assurance, this chapter documents the current automated testing
+framework.  
+
+@section Basic Testing Framework
+
+The @samp{tests} directory in the DIBS source distribution contains
+subdirectories for each test group as well as testing utilities which
+are useful in all tests.  The basic testing philosophy is that only
+general testing utilities and not specific tests go in the @samp{tests}
+directory.  Actual test scripts are contained in subdirectories of
+@samp{tests} which represent test groups.  To run a test group, the user
+sets the environment variables described in 
+@ref{Environment Variables Required for Testing}, 
+changes directory to the top level DIBS
+directory, and imports @samp{all} from the given test suite.
+
+The following is a brief description of the contents of the @samp{tests}
+directory:
+
+@itemize @bullet
+
+@item @samp{tests/test_utils.py}
+
+Contains utility functions useful for all tests.
+
+@item @samp{tests/__init__.py}
+
+Contains code to ensure that various environment variables required for
+the tests are initialized before any tests begin.
+
+@item @samp{tests/all.py}
+
+This file imports all test subdirectories in the @samp{tests} directory
+and causes the corresponding tests to be run.  Specifically, the
+following commands execute all tests:
+@example
+cd <path>/<to>/dibs
+echo from tests import all | <path>/<to>/python
+@end example
+
+@item @samp{tests/contracts}
+
+This subdirectory contains scripts to test the contract functionality in
+the DIBS Peer Finder service.  To run only the tests in this
+subdirectory do:
+@example
+cd <path>/<to>/dibs
+echo from tests.contracts import all | <path>/<to>/python
+@end example
+
+
+@item @samp{tests/daemon}
+This subdirectory contains scripts to test the DIBS daemon.  To run only
+the tests in this subdirectory do:
+@example
+cd <path>/<to>/dibs
+echo from tests.daemon import all | <path>/<to>/python
+@end example
+
+@end itemize
+
+@section Environment Variables Required for Testing
+@anchor{Environment Variables Required for Testing}
+
+The following environment variables @emph{must} be set before any
+automated tests can be run:
+
+@itemize @bullet
+
+@item @samp{DIBS_ADMIN}
+The email address of the administrator of these tests.
+This will be used as the @samp{dibsAdmin} field during the tests and the
+email address specified will receive various error and status messages
+during testing.
+
+@item @samp{SMTP_SERVER}
+The SMTP server to use in sending email messages.
+
+@item @samp{DIBS_TESTING_KEY}
+The email address of the GPG key to use during testing.
+
+@item @samp{DIBS_SECOND_TESTING_KEY}
+The email address of a second GPG key to use during testing.
+
+@end itemize
+
+The following environment variables are optional and do not need to be
+set: 
+
+@itemize @bullet
+
+@item @samp{DIBS_TEST_BASE} 
+This should point to the @samp{tests} directory.  By default it is
+initialized the python command @samp{os.path.join(os.getcwd(),'tests')}.
+
+@item @samp{DIBS_EXE}
+This should point to the executable to use to run the tests.  By
+default, this gets set to @samp{os.path.join(os.getcwd(),'src','dibs_ui.py')}.
+
+@end itemize

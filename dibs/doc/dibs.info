@@ -1,0 +1,1893 @@
+This is dibs.info, produced by makeinfo version 4.7 from dibs.texi.
+
+
+File: dibs.info,  Node: Top,  Up: (dir)
+
+* Menu:
+
+* Overview::
+* Installion and Configuration::
+* Peer Finder::
+* Using DIBS::
+* Commands::
+* Options::
+* Automated Testing::
+* TODO::
+* Concept Index::
+* Command Index::
+* Option Index::
+
+
+File: dibs.info,  Node: Overview,  Next: Installion and Configuration,  Prev: Top,  Up: Top
+
+1 Overview
+**********
+
+Since disk drives are cheap, backup should be cheap too.  Of course it
+does not help to mirror your data by adding more disks to your own
+computer because a virus, fire, flood, power surge, robbery, etc. could
+still wipe out your local data center.  Instead, you should give your
+files to peers (and in return store their files) so that if a
+catastrophe strikes your area, you can recover data from surviving
+peers.  The Distributed Internet Backup System (DIBS) is designed to
+implement this vision.
+
+   Note that DIBS is a backup system not a file sharing system like
+Napster, Gnutella, Kazaa, etc.  In fact, DIBS encrypts all data
+transmissions so that the peers you exchange files with can not access
+your data.
+
+1.1 Features
+============
+
+1.1.1 Automated Backup
+----------------------
+
+After initial configuration, DIBS is designed to run in the background
+and automatically backup desired data.  Specifically, any files,
+directories, or links placed in the DIBS auto backup directory (usually
+~/.dibs/autoBackup) are periodically examined by DIBS and sent to peers
+for backup.  If the data changes, DIBS automatically unstores old
+versions and backs up changes.
+
+1.1.2 Incremental Backup
+------------------------
+
+DIBS performs incremental backup.  Specifically, if DIBS is asked to
+backup a file (either automatically or by the user), and DIBS
+determines the file is already backed up and the file is unchanged,
+DIBS does not re-backup the file.  This allows you to efficiently
+backup large numbers of files without wasting bandwidth by repeatedly
+backing up unchanged data.
+
+1.1.3 Security
+--------------
+
+DIBS uses Gnu Privacy Guard (GPG) to encrypt and digitally sign all
+transactions.  Thus you can be confident that even though you are
+sending your files to others for backup, your data will remain private.
+Furthermore, by using digital signatures, DIBS prevents others from
+impersonating you to store files with your peers.
+
+1.1.4 Robustness
+----------------
+
+DIBS uses Reed-Solomon codes (a type of erasure correcting code similar
+to those used in RAID systems) to gain the maximum robustness for a
+given amount of redundancy.  See the FAQ for a description of the
+benefits of Reed-Solomon codes.
+
+1.1.5 Peer Finder Service
+-------------------------
+
+DIBS includes a peer finder service to allow you to find peers to
+exchange backup space with.
+
+1.1.6 Flexible Communication Modes
+----------------------------------
+
+Since peers can have varying levels of connectivity to the network,
+DIBS offers different communication methods to support a variety of
+users.
+
+   * active: In active mode, the sender directly connects to another
+     peer over the network to transfer files and messages.  This is the
+     preferred mode for peers who are almost always directly connected
+     to the network.
+
+   * passive: In passive mode, the sender stores messages in a local
+     queue and delivers them to the receiver whenever the receiver
+     initiates a connection.  This mode is required when the receiver
+     is behind a firewall (and can not be contacted directly) or is not
+     always connected to the network.
+
+1.1.7 GUI
+---------
+
+     DIBS now has a graphical user interface (GUI) to make it easier to
+use.  The current GUI is experimental so comments, suggestions, and
+code contributions are welcomed.
+
+
+
+File: dibs.info,  Node: Installion and Configuration,  Next: Peer Finder,  Prev: Overview,  Up: Top
+
+2 Installing
+************
+
+2.1 Prerequisites
+=================
+
+For DIBS to work, you need to have the following installed:
+
+   * Python version 2.3 or greater.
+
+   * Gnu Privacy Guard (GPG) version 1.2 or greater.
+
+   * If you want to compile the documentation, you will need LaTeX and
+         texinfo installed.
+
+   * For Debian users the packages gnupg, python2.3, python2.3-dev,
+      texinfo, and tetex-bin should be enough.
+
+   * If you are using Windows, you should also install the Python
+     windows extensions from `http://www.python.org/windows/win32com'.
+
+
+2.2 Installation
+================
+
+To install DIBS, download the binary distribution for you architecture
+or the entire source tarball from `http://dibs.sourceforge.net' or
+`http://www.csua.berkeley.edu/~emin/source_code/dibs'.  If you download
+the source tarball, uncompress it, become root, and do `python setup.py
+install' to install.  If you do not want to install as root, you can do
+`python setup.py install --root=<alternate>/<root>/<path>'.
+
+   The main file used to run DIBS is `dibs.py' which will usually be
+installed in an appropriate place for Python scripts.  On a UNIX
+system, you should be able to run DIBS using `dibs.py ...'.  On a
+Windows system, you may need to do something like
+`C:\<path>\<to>\python.exe dibs.py ...'.
+
+2.3 Configuration
+=================
+
+2.3.1 Create a GPG key
+----------------------
+
+Create a GPG key for DIBS using the command `gpg --gen-key'.  You
+*MUST* use an empty passphrase for your key so that DIBS can
+sign/encrypt with it in batch mode.  We recommend choosing the "email
+address" field of the key to be different from your true email address
+by appending .dibs (e.g. <emin.dibs@alum.mit.edu>).  Make sure you give
+your gpg public key to any peers you want to trade files with.  If your
+GPG key is not `$USER@$HOST', you will need to put the commands
+`dibsPublicKey = '<yourKeyName>'' and `dibsPrivateKey =
+'<yourKeyName>'' in your `dibsrc.py' file.  See the section in the
+manual on Options for more details.
+
+2.3.1.1 IMPORTANT: DIBS refers to keys by email address
+.......................................................
+
+DIBS currently refers to GPG keys via the email address as opposed to
+the GPG key fingerprint or other method.  Thus when you set
+`dibsPublicKey', `dibsPrivateKey', etc., you should be doing something
+like
+
+     dibsPrivateKey = 'emin.dibs@alum.mit.edu'
+
+   Also, you do not need to put a real email address in the name of the
+key, you can essentially put in whatever name you like.  Thus if you
+have multiple machines running dibs you can have one machine with the
+key name foo.dibs@example.com and another with the key
+bar.dibs@example.com and so on.
+
+2.3.2 DIBS Commands
+-------------------
+
+There are a variety of commands for using and configuring DIBS.  All
+commands can be issued either from the command line or from a graphical
+user interface (GUI).  To be complete and precise, this manual
+describes the command line version, but if you wish to use the
+graphical user interface simply use the `dibs.py' command with no
+arguments to start the GUI.
+
+2.3.3 Create An Empty Database
+------------------------------
+
+Issue the command `dibs.py show_database'
+
+   Normally, this command would show you the database of peers you can
+exchange files with (which should be empty).  Since this is the first
+time you are using DIBS, this command (actually any command) will first
+create the `~/.dibs' directory to hold DIBS related files.  On a
+windows system `~/' usually refers to `C:\Documents and
+Settings\<user>'.
+
+2.3.4 Customize Default Parameters
+----------------------------------
+
+If your email address is not `$USER@$HOST' and/or your GPG key is not
+`$USER.dibs@HOST' you will need to tell DIBS about this in the file
+`~/.dibs/dibsrc.py'.  In that file put the following:
+
+     dibsPublicKey = '<your-gpg-key-name>'
+     dibsPrivateKey = '<your-gpg-key-name>'
+     dibsAdmin = '<your-email-address>'
+
+   Remember to refer to GPG keys by the email address as described in
+*Note GPG Keys Named via Email Address::.
+
+   Also, if your gpg program is in a weird place, you may also want to
+put
+
+     gpgProg = '<path>/<to>/gpg'
+
+   If your python executable is in a strange place (e.g., if you run
+Windows) or if you have more than one version of python installed
+(e.g., on a Debian or OS X system where you installed a different
+version in addition to the default python installation), you may also
+need to specify the location of the python interpreter via
+
+     pythonExe = '<path>/<to>/python'
+
+   Finally, you will probably need to set your outgoing mail server via
+something like
+
+     smtpServer = 'smtp.<your-isp>.com'
+
+   See the manual for other customizations that can go in the dibsrc.py
+file.
+
+2.3.5 Add Peers
+---------------
+
+Their are two basic ways to tell DIBS about people or computers with
+whom you want to exchange backup space.  You can either find partners
+yourself and manually import their GPG key and manually enter their
+information using the `add_peer' command are you can use the DIBS peer
+finder service with the `post_contract' and `propose_contract'
+commands.  Ideally, the peer finder service should be simpler and
+easier, but it is currently somewhat experimental.  Both methods are
+discussed below.
+
+2.3.5.1 Using the `add_peer' Command
+....................................
+
+First, you must import the GPG keys you from people you want to exchange
+files with.  This can be done using `gpg --import'.  See the GPG
+documentation for more details.  As described in *Note GPG Keys Named
+via Email Address::, DIBS currently uses the email address for a GPG
+key as the peer name, so when you create a GPG key it is useful to keep
+this in mind.  Please read the description below before
+creating/importing GPG keys for use with DIBS.
+
+   Once you agree to trade files with someone, each of you must add the
+other to the DIBS database using the following command:
+
+     dibs.py add_peer --email TRUE_EMAIL_ADDRESS
+      --peer DIBS_KEY_FOR_PEER --local_quota L_QUOTA
+      --remote_quota R_QUOTA --comment COMMENT
+      --talk TALK_METHOD --listen LISTEN_METHOD
+      --host HOST --port PORT
+
+   The arguments have the following meaning:
+*TRUE_EMAIL_ADDRESS:
+     The true email address of the peer.  This is where DIBS sends
+     correspondence to.
+
+*GPG_KEY_FOR_PEER:
+     The name of the peer's DIBS key.  Specifically, this must be the
+     email address for the GPG key not other methods of key
+     identification and not the true email address for the peer.
+
+*L_QUOTA:
+     This is how much space (in kilo-bytes) you will allow the peer to
+     use on your machine.
+
+*R_QUOTA:
+     This is how much space (in kilo-bytes) your peer will allow you to
+     use on his machine.
+
+*COMMENT:
+     A required comment (this can be "none" if you like).
+
+*TALK_METHOD:
+     How to send messages to this peer.  This can be either `active',
+     `passive'.  We recommend using `active', but `passive' will be
+     required if you or your peer is behind a firewall.  See the manual
+     for details.
+
+*LISTEN_METHOD:
+     How to receive messages from this peer.  This can be either
+     `active', `passive'.  We recommend using `active', but `passive'
+     will be required if you or your peer is behind a firewall.
+     Essentially, the listen method you use is the talk method a
+     corresponding peer would use and vice versa.
+
+*HOST:
+     The name of the machine which peer operates from.
+
+*PORT:
+     The port on HOST to use.  This is an optional parameter with
+     default specified in the dibs_options.py or dibsrc.py file.
+
+
+   For example, if you wanted to trade files with me where I store 1 MB
+for you and you store 5 MB for me you would issue the command
+
+   `dibs.py add_peer --email emin@alum.mit.edu --peer
+emin.dibs@alum.mit.edu --local_quota 5000 --remote_quota 1000 --comment
+"trade with emin" --talk active --listen active --host martinian.com'
+
+   There should be no line breaks in the command above.  Notice that my
+email address is `emin@alum.mit.edu', but my dibs key is
+`emin.dibs@alum.mit.edu', and the machine I plan to run dibs on is
+`martinian.com'.
+
+   This will create an entry for the peer in the database (you can
+verify this using the command `dibs show_database').
+
+2.3.5.2 Using the `post_contract' and `propose_contract' Commands
+.................................................................
+
+An alternative to manually finding a peer and adding the required
+information is to use the new `post_contract' and `propose_contract'
+commands introduced in version 1.0 of DIBS.  Essentially, the
+`post_contract' command allows you to post an advertisement on the
+Internet (or alternatively a private intranet) describing the trade
+parameters you want.  Someone else can then use the `propose_contract'
+command to answer your advertisement.  If the proposed parameters match
+your advertisement then your DIBS client and your partner's client will
+automatically exchange the proper information such as GPG keys, talk
+and listen modes, etc.
+
+   These functions are still experimental, however, and so they are
+described in *Note Peer Finder:: instead of the install section for now.
+Users are encouraged to try them out, but those who just want to get
+DIBS working and do not want to fiddle with things may prefer the better
+tested but more tedious `add_peer' approach.
+
+2.3.6 Automated Backup
+----------------------
+
+To have DIBS automatically back up files or directories, put the
+desired files or directories (or better yet, links to them in
+`~/.dibs/autoBackup').  For example, if you have a UNIX system and want
+to have your `.emacs' file and your Mail directory automatically backed
+up you could do
+
+     cd ~/.dibs/autoBackup
+     ln -s ~/Mail
+     ln -s ~/.emacs
+
+   Once you start the DIBS daemon (described below), it will
+periodically check everything in `~/.dibs/autoBackup' for changes and
+back them up.
+
+2.3.7 Running DIBS
+------------------
+
+For DIBS to work, you must start the daemon with the command
+
+     dibs.py start_daemon
+
+   I recommend starting the daemon inside a screen session if you have
+the screen program installed so that you can view the messages the
+daemon generates.  If you are going to start DIBS in a terminal or
+console that you plan to close and you have a UNIX system, you should
+instead do
+
+     nohup dibs.py start_daemon > /dev/null &
+
+   so that DIBS does not die when trying to write to standard out.
+
+   If errors occur, you may need to restart the daemon.  the DIBS
+daemon will periodically send them out to peers to be backed up.
+
+2.3.8 Preparing for Complete Data Loss
+--------------------------------------
+
+Finally, in order to recover from complete data loss you need to
+protect two absolutely critical pieces of information: your GPG key and
+the list of peers you trade with.  You can obtain the former by
+exporting it from GPG and the latter from your
+`~/.dibs/dibs_database.peerDatabase' file.  So put these two pieces of
+information onto a floppy, CD, or good old fashioned paper and store
+them in a safe place (see the section on *Note Recovering Everything::
+for more details).
+
+   If you do not store these pieces of information you will still be
+able to recover from isolated damage which does not affect this critical
+data.
+
+
+File: dibs.info,  Node: Peer Finder,  Next: Using DIBS,  Prev: Installion and Configuration,  Up: Top
+
+3 Peer Finder
+*************
+
+The Peer Finder service is designed to allow people to find trading
+partners.  The basic idea is that you can use the `post_contract'
+command to advertise a "trading contract" describing your terms for
+trading backup space.  Others can then use the `propose_contract'
+command to propose a specific contract within the parameters you
+specified.  If your DIBS client finds the proposed contract to be valid
+(i.e., within the paremters you specified with `post_contrat'), then
+public keys, email addresses, and other parameters will be exchanged
+between your DIBS client and the peer proposing the contract.  In
+particular, manually issuing `add_peer' or `edit_peer' commands will no
+longer be required.
+
+   To summarize, the main benefits of the peer finder service are:
+
+   * Find peers with whom to exchange backup space.
+
+   * Advertise available backup space and desired trading parameters.
+
+   * Easier configuration without manually exchange keys, emails, etc.
+
+
+3.1 Posting a Contract
+======================
+
+To post a contract, use the `post_contract' command as illustrated by
+the example below:
+
+     dibs.py post_contract --min_quota 10M --max_quota 30M --quota_mult 2.3
+     --lifetime 86400 --contract_name my_contract
+
+   This would post an advertisement for a trading agreement where the
+poster wants between 10 and 30 megabytes of storage space as specified
+by `--min_quota' and `--max_quota'.  The `--quota_mult' of 2.3
+indicates that the poster wants at least 2.3 times more space from than
+he provides.  The `--lifetime' value indicates that this contract is
+valid for 86400 seconds (i.e., one day).  After that time elapses, it
+will be automatically removed from the contract server.  The optional
+`--contract_name' name argument specifies the name of the contract
+(`my_contract' in this example).  Usually, you should not explicitly
+name a contract and let DIBS automatically generate a name.  Providing
+a name can be useful in automated scripts, however.
+
+   The advertisement is posted to the server specified by the
+`defaultContractServerURL' in the `dibsrc.py' file (if no such variable
+is present then the current default is
+`www.martinian.com:8000/~emin/cgi-bin/peer_finder'.  You can view
+posted contracts from yourself or others by pointing a web browser to
+`www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi'
+(or the value of the `defaultContractServerURL' followed by
+`show_contracts.cgi' if you are using a different contract server.)
+
+   The `--quota_mult' option may seem strange at first.  Why would
+anyone be willing to give more space than they provide?  One
+possibility is donating space to charities.  A worthy organization might
+post a contract either asking for free space or highly discounted
+space.  Another possibility is that some people might have very high
+bandwidth connections, high uptime, or other features which make them
+more desirable trading partners.  By providing `--quota_mult' the peer
+finder service allows for a variety of trading relationships.
+
+3.2 Cancelling a Contract
+=========================
+
+You can cancel a contract that you posted with the `unpost_contract'
+command as illustrated below:
+
+     dibs.py unpost_contract --contract_name NAME
+
+   where NAME is replaced with the name of the contract you are trying
+to cancel.  The contract name will be shown on the contract server
+`show_contracts.cgi' page.  Also, you can find your currently posted
+contracts by using the command
+
+     dibs.py show_database --only posted_contracts
+
+   Obviously you cannot unpost contracts posted by others and nobody can
+unpost your contract.  This is accomplished by storing a revocation
+password on in your DIBS database which is told only to the server.
+Your client will automatically supply the required revocation password
+to the server when unposting.
+
+3.3 Responding to a Posted Contract
+===================================
+
+Once you have browsed
+`www.martinian.com:8000/~emin/cgi-bin/peer_finder/show_contracts.cgi'
+or another contract server site and found a contract you would like to
+enter into, you use the `propose_contract'.  The following example
+illustrates how you would respond to the contract posted in *Note
+Posting a Contract::.
+
+     dibs.py propose_contract --local_quota 10M --remote_quota 23M --talk
+     active --listen active --contract_name my_contract
+
+   The `--local_quota', `--remote_quota', `--talk', and `--listen'
+arguments are the parameters which the peer you are proposing the
+contract to would use if he were to use the `add_peer' command.  This
+bears repeating: these arguments are from the point of view of the peer
+you are proposing the contract to not from your point of view.  Thus
+the `--local_quota' argument specifies how much space the peer will
+give you, the `--remote_quota' argument specifies how much space the
+peer will get from you, the `--talk' argument specifies how the peer
+will contact your machine, and the `--listen' argument specifies how
+your DIBS client will contact the peer.
+
+   Once you issue the `propose_contract' command, your peer will try to
+contact the poster of the contract.  Thus, the poster should have an
+`active' `--listen' method otherwise there will be no way for your DIBS
+client to contact the poster's DIBS client!  Assuming that your client
+successfully contacts the poster, the poster will view the proposed
+contract and make a yes or no decision.  The poster will then contact
+the proposer to return the decision and potentially exchange key
+information.
+
+   The simplest case is when both poster and proposer accept direct
+incoming connections and both `--talk' and `--listen' are `active'.
+Things can still work, however, if the proposer is behind a firewall,
+but in this case, the proposer must issue the `poll_passives' command
+followed by the `process_message' command to get the response from the
+poster.
+
+   In any case, once the proposed contract is accepted and the proper
+messages are exchanged, both the posting and proposing DIBS client will
+exchange GPG key information, and set up their quotas accordingly
+without the need for explicitly using the `add_peer' command.
+
+   As an aside, the above discussion illustrates another reason for the
+`--quota_mult' argument in posting a contract.  If your machine is
+available to accept incoming connections then others who are behind
+firewalls can still peer with you.  On the other hand, if your machine
+is behind a firewall and cannot accept incoming connections then you can
+only peer with machines that can accept incoming connections.  This
+would suggest that machines which accept incoming connections should be
+able to "charge more" for peering than those which cannot accept
+incoming connections.  The `--quota_mult' facilitates this.
+
+3.4 Running Your Own Peer Finder Service
+========================================
+
+If you are running a private DIBS network (e.g., to backup files within
+your company or organization), you might want to run your own peer
+finder service.  To do so, look at the `README' file in the
+`src/peer_finder/cgi-bin' directory of the DIBS distribution.
+
+   Once the Peer Finder service becomes more stable, more documentation
+on running your own Peer Finder service will be added to the regular
+documentation.
+
+
+File: dibs.info,  Node: Using DIBS,  Next: Commands,  Prev: Peer Finder,  Up: Top
+
+4 Using DIBS
+************
+
+* Menu:
+
+* The DIBS daemon::
+* Automated Backup::
+* Manual Backup::
+* Recovering Files::
+* Recovering Everything::
+* Database Management::
+
+
+File: dibs.info,  Node: The DIBS daemon,  Next: Automated Backup,  Up: Using DIBS
+
+4.1 The DIBS daemon
+===================
+
+The preferred way to use DIBS is by running the DIBS daemon in the
+background.  The daemon listens for and automatically processes
+incoming messages from peers, and automatically backs up any files,
+directories, or links in the directory `~/.dibs/autoBackup' (or
+whatever you have *Note autoBackupDir:: set to).  To start the daemon,
+use the command `dibs start_daemon'.  For peers to contact your DIBS
+client, *YOU MUST HAVE THE DIBS DAEMON RUNNING*.
+
+   If you have the `screen' program available, the best way to start
+the DIBS daemon is inside a screen session.  That way you can view what
+the daemon is doing inside your screen session.  If you plan to run the
+daemon without a connection to a console (e.g., if you want to start
+the daemon and then close your terminal window) you should redirect the
+output to `/dev/null'.
+
+
+File: dibs.info,  Node: Automated Backup,  Next: Manual Backup,  Prev: The DIBS daemon,  Up: Using DIBS
+
+4.2 Automated Backup
+====================
+
+The simplest way to use DIBS is to put links to any data you want
+backed up in the directory `~/.dibs/autoBackup' (or whatever you have
+*Note autoBackupDir:: set to).  Periodically, the DIBS daemon will
+execute the *Note auto_check:: command which will make DIBS
+incrementally backup your data.  Alternatively, if you want the
+contents of this directory backed up immediately you can issue the
+*Note auto_check:: command manually.
+
+
+File: dibs.info,  Node: Manual Backup,  Next: Recovering Files,  Prev: Automated Backup,  Up: Using DIBS
+
+4.3 Manual Backup
+=================
+
+If you want to backup a particular file or directory, or write scripts
+to use DIBS for more sophisticated backup use the *Note store::
+command.  For example, to backup everything in your mail directory you
+would do
+     dibs.py store --name mail
+   This will cause DIBS to recursively traverse `mail' and incrementally
+store any files it encounters.  In this context, incrementally means
+that a file is only sent to peers if no previous backup exists or if the
+previous backup differs from the current version of the file.
+
+   If you want to backup the same data under different names you can
+use the `--as' option to the `store' command.  For example, on a UNIX
+system you could set up a CRON job to execute the following command
+every day:
+     dibs.py store --name mail --as mail.`date +%a`
+   This would cause dibs to have seven versions of the directory `mail'
+backed up: mail.Mon, mail.Tue, etc.  Each day of the week, DIBS would
+compare the mail directory to the backup it made one week ago and
+re-backup any new files or files which have changed.
+
+
+File: dibs.info,  Node: Recovering Files,  Next: Recovering Everything,  Prev: Manual Backup,  Up: Using DIBS
+
+4.4 Recovering Files
+====================
+
+You can recover a file with the command
+     dibs.py recover_file --file FILENAME
+
+   Note that FILENAME must correspond to the name which you stored the
+file as.  The *Note auto_check:: command stores data with the root
+obtained by concatenating the `rootDir' variable with the `autoBackup'
+variable.  On UNIX, the `rootDir' variable defaults to `/'.  So, on a
+UNIX system, if you want to recover the file foo stored in
+`~/.dibs/autoBackup' (or whatever you have *Note autoBackupDir:: set
+to), you would use the command
+     dibs.py recover_file --file /autoBackup/foo
+
+   This begins the recovery procedure.  DIBS will email you when the
+file is fully recovered unless you have set the value of *Note
+mailUserOnRecovery:: to 0.
+
+
+File: dibs.info,  Node: Recovering Everything,  Next: Database Management,  Prev: Recovering Files,  Up: Using DIBS
+
+4.5 Recovering Everything
+=========================
+
+If you suffer a major data loss you probably do not want to go through
+the tedious process of recovering every file individually.  To recover
+everything all at once, you can use the command
+     dibs.py recover_all
+   This causes DIBS to send a `RECOVER_ALL' message to all peers asking
+them to send back everything.
+
+   A major feature of the `recover_all' command is that it only
+requires the list of peers you are trading data with and does not need
+the rest of the database.  Thus if you have the
+`dibs_database.peerDatabase' (either stored in `~/.dibs' or wherever
+the *Note DIBS_DIR:: variable points to) and your GPG key, you can use
+the recover_all command to recover from complete data loss.
+
+   At first it may seem like the requirement of keeping your
+`dibs_database.peerDatabase' and your GPG key safe defeat the purpose
+of automated backup.  After all if you had secure file storage in the
+first place, why would you need DIBS?  The answer is that these two
+pieces of information take very little room and do not change often.
+Thus it is quite feasible to save your `dibs_database.peerDatabase' and
+GPG key to a floppy, CD, or even paper, and then put this information
+in a safe place (e.g., a friend's house, a safe deposit box, or in a
+fireproof safe in your basement).
+
+
+File: dibs.info,  Node: Database Management,  Prev: Recovering Everything,  Up: Using DIBS
+
+4.6 Database Management
+=======================
+
+If you want to clear out all the files other peers are storing for you,
+you can execute the command
+
+   `dibs.py clear'
+
+   This tells all peers to stop storing files for you.  It is especially
+useful if DIBS gets into a weird state due to errors.
+
+   Note that issuing the clear command only tells peers to stop storing
+stuff for *YOU*, but doesn't make your DIBS client stop storing stuff
+for them.  If you want to drop all the storage for a particular peer,
+you can use the *Note forget:: command.  See the documentation for
+*Note clear::, *Note forget::, *Note edit_peer::, and *Note
+delete_peer:: for more information.
+
+
+File: dibs.info,  Node: Commands,  Next: Options,  Prev: Using DIBS,  Up: Top
+
+5 Commands
+**********
+
+DIBS commands can all be issued in either of two ways: through the
+command line or through the graphical user interface (GUI), which can
+be started by issuing the `dibs.py' command with no arguments.  To be
+complete and precise, this manual describes the command line version.
+
+   On the command line, DIBS commands are issued using the following
+syntax:
+
+   `dibs ARGNAME1 ARGVAL1 ARGNAME2 ARGVAL2 ...'
+
+   where ARGNAME1 is an argument name starting with `--' and ARGVAL1 is
+the corresponding argument value.  For example, to store the file
+`~/foo/bar.txt' the following syntax would be used
+
+     dibs.py store --name ~/foo/bar.txt
+
+   This rest of this section describes the commands available in DIBS.
+Optional arguments are enclosed in brackets.
+
+* Menu:
+
+* add_peer::
+* delete_peer::
+* edit_peer::
+* start_daemon::
+* stop_daemon::
+* forget::
+* auto_check::
+* clear::
+* store::
+* unstore_file::
+* recover_file::
+* recover_all::
+* show_database::
+* cleanup::
+* poll_passives::
+* probe::
+* process_message::
+* send_message::
+* send_hello::
+* merge_stats::
+* post_contract::
+* unpost_contract::
+* propose_contract::
+
+
+File: dibs.info,  Node: add_peer,  Next: delete_peer,  Prev: Commands,  Up: Commands
+
+5.0.0.1 add_peer
+................
+
+`dibs.py add_peer --peer PEER --email EMAIL  --remote_quota
+REMOTE_QUOTA --local_quota LOCAL_QUOTA  --comment  COMMENT --talk TALK
+--host HOST  [ --port PORT ]'
+
+`--peer PEER'
+     Name of the GPG key for the peer specified as the email address of
+     the GPG key.
+
+`--email EMAIL'
+     Email address of the peer.  Messages are sent to this address on
+     certain types of errors.
+
+`--remote_quota REMOTE_QUOTA'
+     Amount of space in kilo-bytes that the peer will allow your client.
+
+`--local_quota LOCAL_QUOTA'
+     Amount of space in kilo-bytes that you will allow the peer on your
+     client.
+
+`--talk TALK'
+     This must be one of `active', `passive', or `mail' and specifies
+     how your client will communicate to the peer *Note Flexible
+     Communication Modes::.  If you can directly connect to your peer
+     (e.g., there are no intervening firewalls), then you should
+     probably use `active' mode.
+
+`--listen LISTEN'
+     This must be one of `active', `passive', or `mail' and specifies
+     how your client will receive communication from the peer *Note
+     Flexible Communication Modes::.  If your peer can directly connect
+     to you peer (e.g., there are no intervening firewalls), then you
+     should probably use `active' mode.
+
+`--host HOST'
+     This specifies the name or IP address of the peer's host.
+
+`--comment COMMENT'
+     This specifies a string which serves as a comment for the peer.
+
+`--port PORT'
+     This specifies the port the peer will listen on for direct
+     connections.  It is only used if TALK is `active'.  This is an
+     optional argument, with a default value of 6363.
+
+
+   The add_peer command is used to create an entry in the database for
+trading files with a peer.  For example, if you wanted to trade files
+with me where I store 1 MB for you and you store 5 MB for me you would
+issue the command:
+
+   `dibs.py add_peer --email emin@allegro.mit.edu --peer
+emin.dibs@alum.mit.edu --local_quota 5000 --remote_quota 1000 --comment
+"trade with emin" --talk active --listen active --host martinian.com'
+
+   A `k', `m', `g', or, `t' can be appended to a quota indicating that
+the number should interpreted as kilo-bytes (the default if no letter
+is appended), mega-bytes, giga-bytes, or tera-bytes.  For example, the
+`--local_quota 5000' in the example above could be replaced by
+`--local_quota 5M' NOT `--local_quota 5K'.
+
+
+File: dibs.info,  Node: delete_peer,  Next: edit_peer,  Prev: add_peer,  Up: Commands
+
+5.0.0.2 delete_peer
+...................
+
+`dibs.py delete_peer --peer PEER'
+`--peer PEER'
+     Specifies the peer to delete.
+
+   This command removes PEER from your database and sends an email to
+the email address associated with PEER to this effect.  This command
+can only be executed if you are not storing anything for PEER and PEER
+is not storing anything for you (*note forget::, *Note clear::).
+
+
+File: dibs.info,  Node: edit_peer,  Next: start_daemon,  Prev: delete_peer,  Up: Commands
+
+5.0.0.3 edit_peer
+.................
+
+`dibs.py edit_peer --peer PEER  [ --email EMAIL ]  [ --remote_quota
+REMOTE_QUOTA ]  [ --local_quota LOCAL_QUOTA ]  [ --comment  COMMENT ]
+[ --talk TALK ]  [ --host HOST ]  [ --port PORT ]'
+
+   See *Note add_peer:: for a description of the arguments.  This
+command changes the value of one or more entries for PEER.  It is an
+error to decrease REMOTE_QUOTA or LOCAL_QUOTA below the respective
+storage amount.  The current storage amount can be seen via *Note
+add_peer::.
+
+
+File: dibs.info,  Node: start_daemon,  Next: forget,  Prev: edit_peer,  Up: Commands
+
+5.0.0.4 start_daemon
+....................
+
+`dibs.py start_daemon '
+
+   This command starts the DIBS daemon.
+
+   The daemon must be running for DIBS to automatically send and
+respond to messages from peers and to automatically backup the data you
+place in the directory named by the *Note autoBackupDir:: option.  For
+more information about the DIBS daemon, *Note The DIBS daemon::.
+
+
+File: dibs.info,  Node: forget,  Next: stop_daemon,  Prev: start_daemon,  Up: Commands
+
+5.0.0.5 forget
+..............
+
+`dibs.py forget --peer PEER'
+`--peer PEER'
+     Name of the peer to forget.
+
+   This command forgets all the files stored for PEER on the local
+machine and sends a message to PEER about this.  The forget command is
+useful if you want to decrease the amount of storage allocated to PEER,
+terminate your relationship with peer (*note delete_peer::), or if your
+DIBS database gets into a weird state.
+
+   Since this command informs PEER that files are being forgotten, the
+database of PEER will be properly synchronized (i.e., the database of
+PEER will indicate that you are not storing any files for PEER).
+
+
+File: dibs.info,  Node: stop_daemon,  Next: auto_check,  Prev: forget,  Up: Commands
+
+5.0.0.6 stop_daemon
+...................
+
+`dibs.py stop_daemon '
+
+   This command asks the daemon on the local machine (IP address
+127.0.0.1) listening at the port specified by the `daemonPort' variable
+to stop immediately.
+
+
+File: dibs.info,  Node: auto_check,  Next: clear,  Prev: stop_daemon,  Up: Commands
+
+5.0.0.7 auto_check
+..................
+
+`dibs.py auto_check '
+
+   This command checks files in the auto backup directory *Note
+autoBackupDir:: and backs up any new files or files that have changed.
+
+
+File: dibs.info,  Node: clear,  Next: store,  Prev: auto_check,  Up: Commands
+
+5.0.0.8 clear
+.............
+
+`dibs.py clear ' This command sends unstore requests to peers to
+unstore all the files stored by your client.
+
+
+File: dibs.info,  Node: store,  Next: unstore_file,  Prev: clear,  Up: Commands
+
+5.0.0.9 store
+.............
+
+`dibs.py store --name ITEM [ --as SNAME ]'
+
+`--name ITEM'
+     This specifies the path of the file or directory to store.
+
+`--as SNAME'
+     This specifies what name to store ITEM under.  If omitted, SNAME
+     defaults to ITEM.
+
+
+   This command causes DIBS to (incrementally) store the file or
+directory with peers.  If a directory is given, its contents are
+recursively stored.  If a file which is already stored is encountered
+and it is unchanged, nothing happens.  If an already stored file is
+encountered and the backed up version is different than the current
+version, the old version is unstored and the new version is backed up
+in its place.
+
+
+File: dibs.info,  Node: unstore_file,  Next: recover_file,  Prev: store,  Up: Commands
+
+5.0.0.10 unstore_file
+.....................
+
+`dibs.py unstore_file --file FILENAME'
+`--file FILENAME'
+     Specifies the name of the file to unstore.
+
+   This command causes DIBS to ask peers to unstore the named file.
+Note that if an item was stored via
+     dibs.py store --file foo --as bar
+   it should be unstored via
+     dibs.py unstore_file --file bar.
+
+
+File: dibs.info,  Node: recover_file,  Next: recover_all,  Prev: unstore_file,  Up: Commands
+
+5.0.0.11 recover_file
+.....................
+
+`dibs.py recover_file --file FILENAME'
+
+`--file FILENAME'
+     Specifies the name of the file to recover.
+
+   Ask peers to send us pieces of FILENAME which they are storing.
+Note that if an item was stored via
+     dibs.py store --file foo --as bar
+   it should be recovered via
+     dibs.py recover_file --file bar.
+
+
+File: dibs.info,  Node: recover_all,  Next: show_database,  Prev: recover_file,  Up: Commands
+
+5.0.0.12 recover_all
+....................
+
+`dibs.py recover_all '
+
+   This command asks all peers to send back everything they are storing.
+This command can be used to recover from complete data loss.  See *Note
+Recovering Everything:: for more details.
+
+
+File: dibs.info,  Node: show_database,  Next: cleanup,  Prev: recover_all,  Up: Commands
+
+5.0.0.13 show_database
+......................
+
+`dibs.py show_database [ --only WHICH ]'
+
+   This command prints a representation of the DIBS database.  If the
+optional `--only' option is used with WHICH being one of `peers',
+`files', `stats', or `recovery', `probe', `storage', `posted_contracts',
+`proposed_contracts',  then only the indicated portion of the database
+is printed.  For example, the command
+     dibs.py show_database --only peers
+   would display only the peers in the database and not the files or
+recovery status.
+
+
+File: dibs.info,  Node: cleanup,  Next: poll_passives,  Prev: show_database,  Up: Commands
+
+5.0.0.14 cleanup
+................
+
+`dibs.py cleanup ' Cleanup empty files and directories.  Use this after
+you use this after calling *Note forget::, after a peer issues the uses
+the *Note clear:: command, or every once in a while to keep things
+clean and efficient.
+
+   DIBS keeps the data your are storing for peers in a tree of
+directories.  Since the file name for a piece of data is determined by
+the MD5 hash of the data, a file name might look like
+`380b90f17c9c908d0e59cf0fb1c8e461'.  This file would be stored in the
+path ``DIBS_DIR'/<peer>/3/8/0/b/380b90f17c9c908d0e59cf0fb1c8e461'.
+Once you stop storing this piece of data the directory
+```DIBS_DIR'/<peer>/3/8/0/b/'' still remains.  The cleanup command goes
+through your DIBS directory and removes such directories which no
+longer contain any files.
+
+
+File: dibs.info,  Node: poll_passives,  Next: probe,  Prev: cleanup,  Up: Commands
+
+5.0.0.15 poll_passives
+......................
+
+`dibs.py poll_passives ' Poll any peers who are passive (i.e., can not
+connect to us directly).  If you are using the DIBS daemon, you do not
+need to use this command since the daemon will do it periodically.
+
+
+File: dibs.info,  Node: probe,  Next: process_message,  Prev: poll_passives,  Up: Commands
+
+5.0.0.16 probe
+..............
+
+`dibs.py probe [ --file FILENAME ]'
+
+   Ask all peers storing a file to verify that they are actually
+storing it.  With no arguments, this command probes a random file.
+This command is called automatically (with no arguments) by the daemon
+started via *Note start_daemon::.
+
+
+File: dibs.info,  Node: process_message,  Next: send_message,  Prev: probe,  Up: Commands
+
+5.0.0.17 process_message
+........................
+
+`dibs.py process_message [ --file FILENAME ] '
+
+`--file FILENAME'
+     This optional argument specifies the name of a file containing a
+     DIBS protocol message to be processed.
+
+   This command reads the DIBS protocol message in FILENAME and takes
+the appropriate actions.  If no argument is provided then all messages
+in the incoming directory are processed.
+
+   If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+
+File: dibs.info,  Node: send_message,  Next: send_hello,  Prev: process_message,  Up: Commands
+
+5.0.0.18 send_message
+.....................
+
+`dibs.py send_message [ --file FILENAME --peer PEER  ]'
+
+`--file FILENAME'
+     This optional argument specifies the name of a file containing a
+     DIBS protocol message to be sent.
+
+`--peer PEER'
+     This optional argument specifies who to send FILENAME to.
+
+   This command reads the DIBS protocol message in FILENAME sends it to
+PEER.  If no argument is provided then all messages in the outgoing
+directory are sent to the appropriate peers.
+
+   If you are using the DIBS daemon, you do not need to use this command
+since the daemon will do it periodically.
+
+
+File: dibs.info,  Node: send_hello,  Next: merge_stats,  Prev: send_message,  Up: Commands
+
+5.0.0.19 send_hello
+...................
+
+`dibs.py send_hello --host HOST --port PORT'
+
+`--host HOST'
+     Specifies the host to contact.
+
+`--port PORT'
+     Specifies the port to use.
+
+   This command sends a hello message to the DIBS daemon listening on
+the specified machine to check if the peer is alive.  The recipient
+should respond with a message listing the version of DIBS it is running.
+
+
+File: dibs.info,  Node: merge_stats,  Next: post_contract,  Prev: send_hello,  Up: Commands
+
+5.0.0.20 merge_stats
+....................
+
+`dibs.py merge_stats '
+
+   This command merges all the statistics records in the statistics
+directory into the database.  The *Note show_database:: command can be
+used to see the current statistics.
+
+
+File: dibs.info,  Node: post_contract,  Next: unpost_contract,  Prev: merge_stats,  Up: Commands
+
+5.0.0.21 post_contract
+......................
+
+`dibs.py post_contract --min_quota MIN_QUOTA         --max_quota
+MAX_QUOTA         --quota_mult QUOTA_MULT         --lifetime LIFETIME
+     [ --talk TALK ]         [ --listen LISTEN ]         [
+--contract_name CONTRACT_NAME ]         [ --url URL ]         [ --host
+HOST ]         [ --port PORT ]'
+
+`--min_quota MIN_QUOTA'
+     The minimum quota the poster wants a potential peer to provide.  By
+     default, space is specified in kilo-bytes as for *Note add_peer::,
+     but `m', `g', or `t' can be appended to a number to indicate
+     megabytes, gigabytes, or terabytes.
+
+`--max_quota MAX_QUOTA'
+     The maximum quota the poster wants a potential peer to provide
+     specified in the format as for MIN_QUOTA.
+
+`--quota_mult QUOTA_MULT'
+     The minimum ratio of space which the potential peer will provide
+     to the space the potential peer will receive in return from the
+     poster.
+
+`--lifetime LIFETIME'
+     The amount of time (in seconds) the contract will remain on the
+     contract server.  After this amount of time has passed, the
+     contract server may delete the posted contract.
+
+`--talk TALK'
+     Must be one of `active', `passive', or `any' and specifies the
+     talk mode the poster will use in communicating with the potential
+     peer if the contract is accepted.
+
+`--listen LISTEN'
+     Must be one of `active', `passive', or `any' and specifies the
+     listen mode the poster will use receiving communications from the
+     potential peer if the contract is accepted.
+
+`--contract_name CONTRACT_NAME'
+     Specifies a name for the contract.  By default, a name is
+     automatically generated for each contract.  Usually using the
+     default name is best and there is no need to explicitly specify a
+     name.  Occasions where you would want to explicitly specify a name
+     include if you want to be able to ask a friend or associate to
+     respond to a particular contract you posted specifically for him
+     or if you are using DIBS in automated scripts.
+
+`--url URL'
+     The URL to post the contract to.  If no URL is provided then the
+     value of the `defaultContractServerURL' will be used.  Also, `--url
+     none' is specified then the contract is not posted to any contract
+     server.  Using the `post_contract' command and not posting the
+     contract to any URL is pointless, but this can be useful for
+     testing purposes.
+
+`--host HOST'
+     The host name of the poster's DIBS client.  By default, this is
+     obtained from the *Note hostname:: variable and should not need to
+     be specified on the command line except in special situations.
+
+`--port PORT'
+     The port where the poster's DIBS daemon will be listening for
+     connections.  By defualt, this is obtained from the *Note
+     daemonPort:: variable and should not need to specified on the
+     command line except in special situations.
+
+   The `post_contract' command posts an advertisement for a trading
+contract to a server (*note Peer Finder::).  Someone else can then
+propose a specific contract matching the posted parameters using the
+`propose_contract' command.  If the contract is accepted, then GPG keys
+are exchanged and the appropriate modifications are made to the
+database of the poster and proposer without the need to manually use the
+`add_peer' or `edit_peer' commands.
+
+
+File: dibs.info,  Node: unpost_contract,  Next: propose_contract,  Prev: post_contract,  Up: Commands
+
+5.0.0.22 unpost_contract
+........................
+
+`dibs.py unpost_contract --contract_name CONTRACT_NAME         [ --url
+URL ]'
+
+   This command unposts the contract with name CONTRACT_NAME previously
+posted with *Note post_contract::.  By default, the URL to unpost from
+is obtained from the *Note defaultContractServerURL:: variable and
+should not need to be specified.
+
+   Also, if `--url none' is specified then the named contract is
+removed from the DIBS database but the contract server is not contacted.
+Generally this would be a bad idea, but it can be useful if contract
+server has removed (or never received) the contract in question and you
+now want to remove the contract from your DIBS database.
+
+
+File: dibs.info,  Node: propose_contract,  Prev: unpost_contract,  Up: Commands
+
+5.0.0.23 propose_contract
+.........................
+
+`dibs.py propose_contract --contract_name CONTRACT_NAME
+--local_quota LOCAL_QUOTA         --remote_quota REMOTE_QUOTA         [
+--talk TALK ]         [ --listen LISTEN ]         [ --host HOST ]
+ [ --peer PEER ]         [ --url URL ]         [ --peer_host PEER_HOST
+]         [ --peer_port PEER_PORT ]         [ --peer_email PEER_EMAIL ]'
+
+   Before describing the arguments, we point out that all the arguments
+that do _not_ start with `--peer_' are from the point of view of the
+peer _not_ the poster.
+
+`--contract_name CONTRACT_NAME'
+     Name of the contract the proposer is responding to.  This should
+     be the name displayed on the peer finder service the contract is
+     posted on.
+
+`--local_quota LOCAL_QUOTA'
+     Amount of space the poster will allow for the proposer, i.e., this
+     is equivalent to what the poster would enter as the `--local_quota'
+     argument if he were to use the `add_peer' command to implement the
+     proposed contract.
+
+`--remote_quota REMOTE_QUOTA'
+     Amount of space the proposer will get from the poster, i.e., this
+     is equivalent to what the poster would enter as the `--local_quota'
+     argument if he were to use the `add_peer' command to implement the
+     proposed contract.
+
+`[ --talk TALK ]'
+     The method the poster should use to communicate to the proposer,
+     i.e., this is equivalent to what the poster would enter as the
+     `--talk' argument if he were to use the `add_peer' command to
+     implement the proposed contract.  If this is not provided, then it
+     is obtained from the posted contract.
+
+`[ --listen LISTEN ]'
+     The method the proposer will use to communicate to the poster,
+     i.e., this is equivalent to what the poster would enter as the
+     `--listen' argument if he were to use the `add_peer' command to
+     implement the proposed contract.  If this is not provided, then it
+     is obtained from the posted contract.
+
+`[ --host HOST ]'
+     The name of the machine for the proposer's DIBS client, i.e., this
+     is equivalent to what the poster would enter as the `--host'
+     argument if he were to use the `add_peer' command to implement the
+     proposed contract.  Usually this is obtained from the contract and
+     should not be specified.
+
+`[ --peer PEER ]'
+     The name of the GPG key for the peer, i.e., this is equivalent to
+     what the poster would enter as the `--peer' argument if he were to
+     use the `add_peer' command to implement the proposed contract.
+     Usually this is obtained from the contract and should not be
+     specified.
+
+`[ --url URL ]'
+     The URL to use to obtain contract information for CONTRACT_NAME.
+     By default, DEFAULTCONTRACTSERVERURL is used.
+
+`[ --peer_host PEER_HOST ]'
+     The name of the host for the poster's DIBS client.  Usually, this
+     is obtained form the posted contract information and should not
+     need to be specified directly.
+
+`[ --peer_port PEER_PORT ]'
+     The port where the poster's DIBS client listens for incoming
+     connections.  Usually, this is obtained form the posted contract
+     information and should not need to be specified directly.
+
+     [ -peer_email PEER_EMAIL ] The email address to use in contacting
+     the poster.  Usually, this is obtained form the posted contract
+     information and should not need to be specified directly.
+
+
+   The `propose_contract' command proposes a specific contract within
+the parameters of the posted contract specified by CONTRACT_NAME.
+Specifically, if the poster accepts incoming connections, the proposer's
+DIBS client will attempt to contact the poster.
+
+   Once contacted, the poster will examine the proposed contract and
+respond with an automated email to the proposer describing its decision.
+If the proposed contract is accepted by the poster, then the poster will
+attempt to contact the proposer's DIBS client to exchange GPG keys, and
+enter the trading relationship in each client's database.
+
+   Thus if both poster and proposer accept incoming connections, the
+trading relationship should be automatically established and trading
+will commence as usual.  If either the poster or proposer is behind a
+firewall and requires passive mode, things are more complicated.
+
+   If the proposer is behind a firewall and cannot accept incoming
+connections, then it will not be able to obtain the poster's response to
+a proposal until it issues a `poll_passives' command and followed by a
+`process_message' command to the poster.  The DIBS daemon should
+eventually do this automatically, but the impatient user may wish to
+manually issue these commands after a contract is proposed.
+
+   If the poster is behind a firewall and cannot accept incoming
+connections, then things are even more complicated.  In this case, there
+is no way that the proposer can contact the poster to initiate a
+proposal.  Thus, posting a contract for a DIBS client which cannot
+accept incoming connections because it is behind a firewall is generally
+not a good idea.
+
+
+File: dibs.info,  Node: Options,  Next: Automated Testing,  Prev: Commands,  Up: Top
+
+6 Options
+*********
+
+DIBS has a number of options which you can configure using the
+`dibsrc.py' file in you DIBS directory.  Your DIBS directory is usually
+created in `~/.dibs' the first time you invoke DIBS.  Use the command
+`dibs show_database' if you just want to get your DIBS directory
+created without doing anything else.
+
+   To set a particular option, just put the appropriate command in your
+`dibsrc.py' file.  For example, to specify a particular name for the
+log file instead of the default, place the following command in the
+file `~/.dibs/dibsrc.py':
+     logFile = '/tmp/myDibsLog'
+   All the options which you can set in this manner are described below
+including the variable *Note DIBS_DIR::, which behaves slightly
+differently.
+
+   The options are separated into two classes "User Options" and
+"Variables".  The only distinction is that "User Options" are things
+which you will probably want to customize while variables are things
+which you probably should not change unless you know what you are doing.
+
+6.0.1 Option List
+-----------------
+
+ -- User Option: dibsPublicKey
+     This variable is the name of the GPG key to use in signing messages
+     sent to peers.  By default it is set using environment variables
+     to be `${USER}@${HOST}'.  A warning is printed if either the USER
+     or HOST environment variable can not be determined.
+
+ -- User Option: dibsPrivateKey
+     This variable is the name of the GPG key to use in encrypting
+     messages that you ask peers to store for you.  By default it is
+     set using environment variables to be `${USER}@${HOST}'.  A
+     warning is printed if either the USER or HOST environment variable
+     can not be determined.
+
+     The value of dibsPrivateKey can be the same or different than
+     dibsPublicKey.  If they are the same, you have the convenience of
+     only having to keep track of one GPG key.  If they are different
+     and you keep the private key secret, you have the added security
+     that anyone trying to crack your encryption does not have the
+     public key to work with.
+
+     Cracking the encryption when the public key is known MAY be easier
+     than cracking the encryption when no public key is available.
+     Nobody has yet figured out a way to break the commonly used public
+     key encryption systems, though, so I personally just use the same
+     public key for both encryption and signing.
+
+ -- User Option: dibsAdmin
+     This variable is the email address of the user.  By default it is
+     set using environment variables to be `${USER}@${HOST}'.  A
+     warning is printed if either the USER or HOST environment variable
+     can not be determined.
+
+
+ -- User Option: mailUserOnRecovery
+     This variable controls whether DIBS automatically emails the user
+     specified in the dibsAdmin variable when it finishes processing a
+     recover_file command *Note recover_file::.  The default value is
+     1, set it to 0 if you want to disable emailing when recovery is
+     complete.
+
+ -- User Option: kbPerFile
+     This variable sets the maximum size chunk to store with a peer.
+     The default is 10 megabytes.  Files larger than this value are
+     broken up into smaller pieces before storage.
+
+ -- User Option: logFile
+     This variable specifies the file name to use in logging DIBS
+     information.  The default is
+          DIBS_DIR = DIBS_DIR + '/logfile'
+
+ -- User Option: logLevel
+     This variable specifies the type of information which will be
+     included in the log file.  The different types of messages and
+     their levels are shown below:
+     LOG_DEBUG         -20
+     LOG_INFO          -10
+     LOG_WARNING       0
+     LOG_ERROR         10
+     LOG_CRITICAL      20
+     All messages with categories above the value for the `logLevel'
+     variable will be printed to the log file.
+
+     For example, if this variable is set to -10 as shown below
+          logLevel = -10
+     then `LOG_DEBUG' messages will not be logged but all others will
+     be.
+
+     The default value for this variable is 0.
+
+ -- User Option: printLogLevel
+     This variable specifies the type of information which will be
+     printed to the console.  The different types of messages and their
+     levels are the same as described for the `logLevel' variable.
+
+     All messages with categories above the value for the
+     `printLogLevel' variable will be printed to the console.
+
+     For example, if this variable is set to -20 as shown below
+          logLevel = -20
+     then all messages will be printed.
+
+     The default value for this variable is 0.
+
+ -- User Option: maxLogSize
+     This variable specifies how many kilobytes a log file can contain
+     before being rotated.
+
+     For example, if this variable is set to the default value of
+     1000000 as shown below,
+          maxLogSize = 1000000
+     then logs will be rotated when they exceed one megabyte.
+
+
+ -- User Option: gpgProg
+     This variable specifies the path to the GPG program.  The default
+     is
+          gpgProg = 'gpg'
+     If you are using Windows, you will almost certainly have to set
+     this variable to point to your GPG program.
+
+ -- User Option: smtpServer
+     This variable specifies the SMTP server to use for sending
+     outgoing mail.  The default is `localhost', but that almost
+     certainly will not work if you are running Windows and probably
+     will not work on most home UNIX systems.  The best way to
+     determine the SMTP server is to ask your system administrator or
+     your Internet Service Provider.  For example, if you connect to
+     the Internet using RCN, you might do
+          smtpServer = 'smtp.rcn.com'
+
+ -- User Option: daemonLogFile
+     The DIBS daemon maintains a separate log file than other DIBS
+     commands.  The name of this log file is controlled by this
+     variable and defaults to
+          daemonLogFile = DIBS_DIR + '/daemonLog'
+
+ -- User Option: daemonStopFile
+     When running, the DIBS daemon can be stopped by creating the file
+     with this name.  If this file contains an integer, the daemon
+     waits that many seconds before stopping, otherwise it stops
+     immediately.  In either case, the daemon removes this file after
+     stopping.  Note that the daemon only checks for the existence of
+     this file occasionally as controlled by *Note daemonTimeout::.
+     The default value is
+          daemonStopFile = DIBS_DIR + '/stop_daemon'
+
+ -- User Option: daemonTimeout
+     When the DIBS daemon is alive it waits in an idle state for
+     incoming connections.  After a timeout period given by this
+     variable (specified in seconds), it wakes up and performs various
+     actions such as checking if it should stop *Note daemonStopFile::,
+     checking if it should automatically backup files, or if it should
+     attempt to poll passive peers *Note pollInterval::.  The default
+     value is 600.
+
+ -- User Option: pollInterval
+     This variable specifies how often (in seconds) the DIBS daemon
+     should contact passive peers to ask for messages.  Since the
+     daemon only wakes up to do polling periodically (*note
+     daemonTimeout::), the actual poll interval may be the sum of this
+     variable, the daemonTimeout variable, and the time required to
+     perform intervening actions by the daemon.  The default value is
+     3600.
+
+ -- User Option: probePeriod
+     This variable controls how of then the *Note probe:: command is
+     automatically called by the daemon.  Specifically, a `probe' will
+     be attempted roughly every *Note daemonTimeout:: seconds, but no
+     more often than specified by this variable.
+
+ -- User Option: probeTimeout
+     This variable specifies how long a probe is allowed to take.  If
+     more time (in seconds) has passed for a probe than the value of
+     this variable, the probe is marked as a timeout.
+
+ -- User Option: redundantPieces
+     This variables specifies how many redundant pieces of a file will
+     be created.  If a file is chopped into k pieces (*note
+     kbPerFile::), this many extra pieces will be added using a
+     Reed-Solomon code.  For example, if a file is chopped into 5 pieces
+     and redundantPieces is 2, then 7 pieces will be sent such that the
+     original file can be recovered from any 5 of those 7 pieces.
+
+ -- User Option: hostname
+     This variable specifies the name of the host on which your DIBS
+     client is running.  By default, this value is obtained from the
+     `HOST' environment variable and should not need to be modified.
+     If that environment variable is empty or returns something useless
+     like `localhost' or `127.0.0.1', then you should probably explictly
+     set this variable.
+
+ -- Variable: daemonPort
+     This variable specifies the port the DIBS daemon should listen on.
+     The default value is 6363.
+
+ -- Variable: sleepTime
+     Sometimes DIBS needs to wait briefly for things like a lockfile
+     being released or an unstore request being sent out before
+     continuing.  At these times it sleeps for a number of seconds
+     specified by the sleepTime variable whose default value is 10.
+
+ -- Variable: maxMsgAge
+     This variable specifies how many seconds a message can wait in the
+     outgoing queue before DIBS complains about it.  The default is set
+     to 10 days:
+          maxMsgAge = 86400 * 10
+
+ -- Variable: rootDir
+     This variables specifies the root directory (usually `/' on a UNIX
+     system).
+
+ -- Variable: autoBackupDir
+     This variables specifies where the `auto_check' command looks for
+     files and directories to backup automatically *Note auto_check::.
+
+ -- Variable: errorDir
+     Any error messages which are mailed to the DIBS Administrator
+     specified by *Note dibsAdmin:: are also stored in the directory
+     named by this variable.  You should periodically read and delete
+     messages here.
+
+ -- Variable: errMaxCount
+     To prevent the DIBS Administrator from being mail bombed with error
+     messages if something extremely unusual occurs, DIBS stops mailing
+     error messages once the number of error messages in the directory
+     named by *Note errorDir:: exceeds this threshold.
+
+ -- Variable: errWarnCount
+     To prevent the DIBS Administrator from forgetting about error
+     messages stored in the directory named by *Note errorDir::, DIBS
+     sends warnings about this directory filling up when the number of
+     messages exceeds this threshold.
+
+ -- Variable: sendMsgThreshold
+     When storing a directory DIBS works by creating a queue of outgoing
+     messages before trying to connect to peers to deliver the messages.
+     Once more files than specified by this variable are queued up, DIBS
+     will try to connect to peers to send the messages out.
+
+     If you make this threshold too small then DIBS will waste a lot of
+     time with network overhead in making and closing connections to
+     peers.  If you make this threshold too large then you prevent
+     pipelining of your DIBS program sending messages out and your peers
+     processing the messages you are sending to them.
+
+ -- Variable: DIBS_DIR
+     This variable determines the location of the user's DIBS files.  By
+     default it is `${HOME}/.dibs'.  You _can not_ set this via the
+     `dibsrc.py' because DIBS looks for the `dibsrc.py' file in the
+     directory DIBS_DIR.  Therefore to use a directory other than
+     `${HOME}/.dibs' to hold your DIBS files set the environment
+     variable `DIBS_DIR'.
+
+ -- Variable: pythonExe
+     This variable describes the path to the Python executable.  By
+     default, it is set to the `sys.executable' value obtained from
+     Python.  You should not need to change it unless you have multiple
+     versions of python installed and are doing something rather
+     strange.
+
+ -- Variable: defaultContractServerURL
+     This variable specifies the default URL to use for the Peer Finder
+     contract server.  You should only change this if you want to use a
+     special Peer Finder server.
+
+
+File: dibs.info,  Node: Automated Testing,  Next: TODO,  Prev: Options,  Up: Top
+
+7 Automated Testing
+*******************
+
+DIBS provides various scripts for automated testing.  These automated
+tests will probably be most useful to developers, but users may find
+them useful in diagnosing problems.
+
+   Furthermore, in addition to adding more tests, one quality assurance
+goal of DIBS is to add an automated test for each bug which is reported
+or fixed to verify the existence of the bug and its resolution.
+Ideally, advanced users should be able to submit a bug report by
+creating a new automated test which demonstrates the bug.
+
+   The testing suite is currently too complicated and poorly documented
+to reach this goal.  But as a first step in achieving better testing and
+quality assurance, this chapter documents the current automated testing
+framework.
+
+7.1 Basic Testing Framework
+===========================
+
+The `tests' directory in the DIBS source distribution contains
+subdirectories for each test group as well as testing utilities which
+are useful in all tests.  The basic testing philosophy is that only
+general testing utilities and not specific tests go in the `tests'
+directory.  Actual test scripts are contained in subdirectories of
+`tests' which represent test groups.  To run a test group, the user
+sets the environment variables described in *Note Environment Variables
+Required for Testing::, changes directory to the top level DIBS
+directory, and imports `all' from the given test suite.
+
+   The following is a brief description of the contents of the `tests'
+directory:
+
+   * `tests/test_utils.py'
+
+     Contains utility functions useful for all tests.
+
+   * `tests/__init__.py'
+
+     Contains code to ensure that various environment variables
+     required for the tests are initialized before any tests begin.
+
+   * `tests/all.py'
+
+     This file imports all test subdirectories in the `tests' directory
+     and causes the corresponding tests to be run.  Specifically, the
+     following commands execute all tests:
+          cd <path>/<to>/dibs
+          echo from tests import all | <path>/<to>/python
+
+   * `tests/contracts'
+
+     This subdirectory contains scripts to test the contract
+     functionality in the DIBS Peer Finder service.  To run only the
+     tests in this subdirectory do:
+          cd <path>/<to>/dibs
+          echo from tests.contracts import all | <path>/<to>/python
+
+   * `tests/daemon' This subdirectory contains scripts to test the DIBS
+     daemon.  To run only the tests in this subdirectory do:
+          cd <path>/<to>/dibs
+          echo from tests.daemon import all | <path>/<to>/python
+
+
+7.2 Environment Variables Required for Testing
+==============================================
+
+The following environment variables _must_ be set before any automated
+tests can be run:
+
+   * `DIBS_ADMIN' The email address of the administrator of these tests.
+     This will be used as the `dibsAdmin' field during the tests and the
+     email address specified will receive various error and status
+     messages during testing.
+
+   * `SMTP_SERVER' The SMTP server to use in sending email messages.
+
+   * `DIBS_TESTING_KEY' The email address of the GPG key to use during
+     testing.
+
+   * `DIBS_SECOND_TESTING_KEY' The email address of a second GPG key to
+     use during testing.
+
+
+   The following environment variables are optional and do not need to
+be set:
+
+   * `DIBS_TEST_BASE' This should point to the `tests' directory.  By
+     default it is initialized the python command
+     `os.path.join(os.getcwd(),'tests')'.
+
+   * `DIBS_EXE' This should point to the executable to use to run the
+     tests.  By default, this gets set to
+     `os.path.join(os.getcwd(),'src','dibs_ui.py')'.
+
+
+
+File: dibs.info,  Node: TODO,  Next: Concept Index,  Prev: Automated Testing,  Up: Top
+
+8 TODO
+******
+
+The following are issues which need to be fixed in future releases.  If
+you have other suggestions or would like to fix something in the list
+below, please contact <emin@alum.mit.edu>.
+
+*Provide options to the show_database command
+     Current show_database prints the entire database.  This is
+     annoying if you just want to check data about a certain file or a
+     certain peer.  We need to provide some options to show_database to
+     let you just get small amounts of info.
+
+*GUI
+     It would be nice to improve the GUI.
+
+*Peer finding server
+     To facilitate finding peers, it would be nice to have a central
+     server which DIBS peers can automatically post requests for and
+     complete peering aggreements.  By automatically, I mean that the
+     user should just be able to tell his DIBS program that he wants to
+     find peers with certain properties and the program should take
+     care of the rest.
+
+*More automated tests
+     We need more automated tests to find and squash the bugs in DIBS.
+
+*Use py2exe
+     Travis made a good point that it DIBS would be easier to use if the
+     DIBS installer could install python and GPG for the user instead of
+     requiring the user to install those packages separetely.
+
+*If you want to clear out peers and one of them is not responding,
+     DIBS quits without sending clear messages to the other peers.  This
+     should be fixed.
+
+
+
+File: dibs.info,  Node: Concept Index,  Next: Command Index,  Prev: TODO,  Up: Top
+
+Concept Index
+*************
+
+ [index ]
+* Menu:
+
+File: dibs.info,  Node: Command Index,  Next: Option Index,  Prev: Concept Index,  Up: Top
+
+Command Index
+*************
+
+ [index ]
+* Menu:
+
+* add_peer:                              add_peer.              (line 6)
+* auto_check:                            auto_check.            (line 6)
+* cleanup:                               cleanup.               (line 6)
+* clear:                                 clear.                 (line 6)
+* delete_peer:                           delete_peer.           (line 6)
+* edit_peer:                             edit_peer.             (line 6)
+* forget:                                forget.                (line 6)
+* merge_stats:                           merge_stats.           (line 6)
+* poll_passives:                         poll_passives.         (line 6)
+* post_contract:                         post_contract.         (line 6)
+* probe:                                 probe.                 (line 6)
+* process_message:                       process_message.       (line 6)
+* propose_contract:                      propose_contract.      (line 6)
+* recover_all:                           recover_all.           (line 6)
+* recover_file:                          recover_file.          (line 6)
+* send_hello:                            send_hello.            (line 6)
+* send_message:                          send_message.          (line 6)
+* show_database:                         show_database.         (line 6)
+* start_daemon:                          start_daemon.          (line 6)
+* stop_daemon:                           stop_daemon.           (line 6)
+* store:                                 store.                 (line 6)
+* unpost_contract:                       unpost_contract.       (line 6)
+* unstore_file:                          unstore_file.          (line 6)
+
+
+File: dibs.info,  Node: Option Index,  Prev: Command Index,  Up: Top
+
+Option Index
+************
+
+ [index ]
+* Menu:
+
+* autoBackupDir:                         Options.             (line 221)
+* daemonLogFile:                         Options.             (line 140)
+* daemonPort:                            Options.             (line 201)
+* daemonStopFile:                        Options.             (line 146)
+* daemonTimeout:                         Options.             (line 156)
+* defaultContractServerURL:              Options.             (line 270)
+* DIBS_DIR:                              Options.             (line 255)
+* dibsAdmin:                             Options.             (line  56)
+* dibsPrivateKey:                        Options.             (line  36)
+* dibsPublicKey:                         Options.             (line  30)
+* errMaxCount:                           Options.             (line 231)
+* errorDir:                              Options.             (line 225)
+* errWarnCount:                          Options.             (line 237)
+* gpgProg:                               Options.             (line 123)
+* hostname:                              Options.             (line 193)
+* kbPerFile:                             Options.             (line  70)
+* logFile:                               Options.             (line  75)
+* logLevel:                              Options.             (line  80)
+* mailUserOnRecovery:                    Options.             (line  63)
+* maxLogSize:                            Options.             (line 113)
+* maxMsgAge:                             Options.             (line 211)
+* pollInterval:                          Options.             (line 165)
+* printLogLevel:                         Options.             (line  99)
+* probePeriod:                           Options.             (line 174)
+* probeTimeout:                          Options.             (line 180)
+* pythonExe:                             Options.             (line 263)
+* redundantPieces:                       Options.             (line 185)
+* rootDir:                               Options.             (line 217)
+* sendMsgThreshold:                      Options.             (line 243)
+* sleepTime:                             Options.             (line 205)
+* smtpServer:                            Options.             (line 130)
+
+
+
+Tag Table:
+Node: Top69
+Node: Overview308
+Ref: Flexible Communication Modes2858
+Node: Installion and Configuration3749
+Ref: GPG Keys Named via Email Address5998
+Node: Peer Finder15139
+Ref: Posting a Contract16287
+Node: Using DIBS22533
+Node: The DIBS daemon22785
+Node: Automated Backup23742
+Node: Manual Backup24324
+Node: Recovering Files25525
+Node: Recovering Everything26412
+Node: Database Management27870
+Node: Commands28638
+Node: add_peer29862
+Node: delete_peer32365
+Node: edit_peer32855
+Node: start_daemon33456
+Node: forget33927
+Node: stop_daemon34654
+Node: auto_check34966
+Node: clear35251
+Node: store35472
+Node: unstore_file36236
+Node: recover_file36688
+Node: recover_all37147
+Node: show_database37499
+Node: cleanup38125
+Node: poll_passives39032
+Node: probe39375
+Node: process_message39775
+Node: send_message40399
+Node: send_hello41107
+Node: merge_stats41598
+Node: post_contract41936
+Node: unpost_contract45402
+Node: propose_contract46218
+Node: Options51334
+Ref: dibsAdmin53854
+Ref: mailUserOnRecovery54128
+Ref: kbPerFile54452
+Ref: daemonStopFile57358
+Ref: daemonTimeout57880
+Ref: pollInterval58344
+Ref: probePeriod58788
+Ref: probeTimeout59078
+Ref: redundantPieces59305
+Ref: hostname59738
+Ref: daemonPort60140
+Ref: rootDir60779
+Ref: autoBackupDir60894
+Ref: errorDir61060
+Ref: DIBS_DIR62529
+Ref: defaultContractServerURL63247
+Node: Automated Testing63425
+Ref: Environment Variables Required for Testing66174
+Node: TODO67173
+Node: Concept Index68683
+Node: Command Index68818
+Node: Option Index70642
+
+End Tag Table

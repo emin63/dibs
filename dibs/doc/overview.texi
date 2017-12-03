@@ -1,0 +1,80 @@
+
+Since disk drives are cheap, backup should be cheap too.  Of course it
+does not help to mirror your data by adding more disks to your own
+computer because a virus, fire, flood, power surge, robbery,
+etc. could still wipe out your local data center.  Instead, you should
+give your files to peers (and in return store their files) so that if
+a catastrophe strikes your area, you can recover data from surviving
+peers.  The Distributed Internet Backup System (DIBS) is designed to
+implement this vision.
+
+Note that DIBS is a backup system not a file sharing system like
+Napster, Gnutella, Kazaa, etc.  In fact, DIBS encrypts all data
+transmissions so that the peers you exchange files with can not access
+your data.
+
+@section Features
+
+@subsection Automated Backup
+
+After initial configuration, DIBS is designed to run in the background
+and automatically backup desired data.  Specifically, any files,
+directories, or links placed in the DIBS auto backup directory (usually
+~/.dibs/autoBackup) are periodically examined by DIBS and sent to peers
+for backup.  If the data changes, DIBS automatically unstores old
+versions and backs up changes.  
+
+@subsection Incremental Backup
+
+DIBS performs incremental backup.  Specifically, if DIBS is asked to
+backup a file (either automatically or by the user), and DIBS
+determines the file is already backed up and the file is unchanged,
+DIBS does not re-backup the file.  This allows you to efficiently
+backup large numbers of files without wasting bandwidth by repeatedly
+backing up unchanged data.
+
+@subsection Security
+
+DIBS uses Gnu Privacy Guard (GPG) to encrypt and digitally sign all
+transactions.  Thus you can be confident that even though you are
+sending your files to others for backup, your data will remain private.
+Furthermore, by using digital signatures, DIBS prevents others from
+impersonating you to store files with your peers.
+
+@subsection Robustness
+
+DIBS uses Reed-Solomon codes (a type of erasure correcting code
+similar to those used in RAID systems) to gain the maximum robustness
+for a given amount of redundancy.  See the FAQ for a description of
+the benefits of Reed-Solomon codes.
+
+@subsection Peer Finder Service
+
+DIBS includes a peer finder service to allow you to find peers to
+exchange backup space with.
+
+@subsection Flexible Communication Modes
+@anchor{Flexible Communication Modes}
+Since peers can have varying levels of connectivity to the network,
+DIBS offers different communication methods to support a variety of users.
+
+@itemize @bullet
+@item active: 
+In active mode, the sender directly connects to another peer over the
+network to transfer files and messages.  This is the preferred mode
+for peers who are almost always directly connected to the network.
+
+@item passive:
+In passive mode, the sender stores messages in a local queue and
+delivers them to the receiver whenever the receiver initiates a
+connection.  This mode is required when the receiver is behind a
+firewall (and can not be contacted directly) or is not always
+connected to the network.
+
+@subsection GUI
+
+DIBS now has a graphical user interface (GUI) to make it easier to
+use.  The current GUI is experimental so comments, suggestions, and
+code contributions are welcomed.
+
+@end itemize

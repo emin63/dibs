@@ -1,0 +1,37 @@
+
+The following are issues which need to be fixed in future releases.  If
+you have other suggestions or would like to fix something in the list
+below, please contact @email{emin@@alum.mit.edu}.
+
+@table @bullet
+
+@item Provide options to the show_database command
+Current show_database prints the entire database.  This is annoying if
+you just want to check data about a certain file or a certain peer.
+We need to provide some options to show_database to let you just get
+small amounts of info.
+
+@item GUI
+It would be nice to improve the GUI.
+
+@item Peer finding server
+To facilitate finding peers, it would be nice to have a central server
+which DIBS peers can automatically post requests for and complete
+peering aggreements.  By automatically, I mean that the user should
+just be able to tell his DIBS program that he wants to find peers with
+certain properties and the program should take care of the rest.
+
+@item More automated tests
+We need more automated tests to find and squash the bugs in DIBS.
+
+@item Use py2exe
+
+Travis made a good point that it DIBS would be easier to use if the
+DIBS installer could install python and GPG for the user instead of
+requiring the user to install those packages separetely.
+
+@item If you want to clear out peers and one of them is not responding,
+DIBS quits without sending clear messages to the other peers.  This 
+should be fixed.
+
+@end table

@@ -1,0 +1,335 @@
+
+DIBS has a number of options which you can configure using the
+@file{dibsrc.py} file in you DIBS directory.  Your DIBS directory is 
+usually created in @file{~/.dibs} the first time you invoke DIBS.  Use 
+the command @samp{dibs show_database} if you just want to get your
+DIBS directory created without doing anything else.
+
+To set a particular option, just put the appropriate command in your
+@file{dibsrc.py} file.
+For example, to specify a
+particular name for 
+the log file instead of the default, place the following command in
+the file @file{~/.dibs/dibsrc.py}:
+@example
+logFile = '/tmp/myDibsLog'
+@end example
+All the options which you can set in this manner are described below
+including the variable @ref{DIBS_DIR}, which behaves slightly
+differently.  
+
+The options are separated into two classes ``User Options'' and
+``Variables''.  The only distinction is that ``User Options'' are
+things which you will probably want to customize while variables are
+things which you probably should not change unless you know what you
+are doing.
+
+@subsection Option List
+
+@defopt dibsPublicKey
+This variable is the name of the GPG key to use in signing messages
+sent to peers.  By default it
+is set using environment variables to be @samp{$@{USER@}@@$@{HOST@}}.  A
+warning is printed if either the USER or HOST environment variable can
+not be determined.
+@end defopt
+
+@defopt dibsPrivateKey
+This variable is the name of the GPG key to use in encrypting messages
+that you ask peers to store for you.  By default it
+is set using environment variables to be @samp{$@{USER@}@@$@{HOST@}}.  A
+warning is printed if either the USER or HOST environment variable can
+not be determined.
+
+The value of dibsPrivateKey can be the same or different than
+dibsPublicKey.  If they are the same, you have the convenience of only
+having to keep track of one GPG key.  If they are different and you
+keep the private key secret, you have the added security that anyone
+trying to crack your encryption does not have the public key to work
+with.
+
+Cracking the encryption when the public key is known MAY be easier
+than cracking the encryption when no public key is available.
+Nobody has yet figured out a way to break the commonly used
+public key encryption systems, though, so I personally just use the
+same public key for both encryption and signing.
+@end defopt
+
+@defopt dibsAdmin
+@anchor{dibsAdmin}
+This variable is the email address of the user.  By default it is set
+using environment variables to be @samp{$@{USER@}@@$@{HOST@}}.  A
+warning is printed if either the USER or HOST environment variable can
+not be determined.
+
+@end defopt
+
+@defopt mailUserOnRecovery
+@anchor{mailUserOnRecovery} This variable controls whether DIBS
+automatically emails the user specified in the dibsAdmin variable when
+it finishes processing a recover_file command @ref{recover_file}.  The
+default value is 1, set it to 0 if you want to disable emailing when
+recovery is complete.
+@end defopt
+
+@defopt kbPerFile
+@anchor{kbPerFile}
+This variable sets the maximum size chunk to store with a peer.  The
+default is 10 megabytes.  Files larger than this value
+are broken up into smaller pieces before storage.
+@end defopt
+
+@defopt logFile
+This variable specifies the file name to use in logging DIBS
+information.  The default is 
+@example
+DIBS_DIR = DIBS_DIR + '/logfile'
+@end example
+@end defopt
+
+@defopt logLevel
+This variable specifies the type of information which will be included
+in the log file.  The different types of messages and their levels are
+shown below:
+@multitable {LOG_LONGEST_XXX} {XXXX}
+@item LOG_DEBUG @tab -20
+@item LOG_INFO  @tab -10
+@item LOG_WARNING @tab 0
+@item LOG_ERROR @tab 10
+@item LOG_CRITICAL @tab 20
+@end multitable
+All messages with categories above the value for the @samp{logLevel}
+variable will be printed to the log file.  
+
+For example, if this variable is set to -10 as shown below
+@example
+logLevel = -10
+@end example
+then @samp{LOG_DEBUG} messages will not be logged but all others will
+be.
+
+The default value for this variable is 0.
+@end defopt
+
+@defopt printLogLevel
+This variable specifies the type of information which will be printed
+to the console.  The different types of messages and their levels are
+the same as described for the @samp{logLevel} variable.
+
+All messages with categories above the value for the @samp{printLogLevel}
+variable will be printed to the console.
+
+For example, if this variable is set to -20 as shown below
+@example
+logLevel = -20
+@end example
+then all messages will be printed.
+
+The default value for this variable is 0.
+@end defopt
+
+@defopt maxLogSize
+This variable specifies how many kilobytes a log file can contain
+before being rotated.
+
+For example, if this variable is set to the default value of 1000000
+as shown below,
+@example
+maxLogSize = 1000000
+@end example
+then logs will be rotated when they exceed one megabyte.
+
+@end defopt
+
+@defopt gpgProg
+This variable specifies the path to the GPG program.  The default is
+@example
+gpgProg = 'gpg'
+@end example
+If you are using Windows, you will almost certainly have to set this
+variable to point to your GPG program.
+@end defopt
+
+@defopt smtpServer
+This variable specifies the SMTP server to use for sending outgoing mail.
+The default is @samp{localhost}, but that almost certainly will not
+work if you are running Windows and probably will not work on most home 
+UNIX systems.  The best way to determine the SMTP server is to ask
+your system administrator or your Internet Service Provider.  
+For example, if you connect to the Internet using RCN, you might do
+@example
+smtpServer = 'smtp.rcn.com'
+@end example
+@end defopt
+
+@defopt daemonLogFile
+The DIBS daemon maintains a separate log file than other DIBS commands.
+The name of this log file is controlled by this variable and defaults to
+@example
+daemonLogFile = DIBS_DIR + '/daemonLog'
+@end example
+@end defopt
+
+@defopt daemonStopFile 
+@anchor{daemonStopFile}
+When running, the DIBS daemon can be stopped by creating the file with
+this name.  If this file contains an integer, the daemon waits that many
+seconds before stopping, otherwise it stops immediately.  In either
+case, the daemon removes this file after stopping.  Note that the daemon
+only checks for the existence of this file occasionally as controlled by
+@ref{daemonTimeout}.  The default value is
+@example
+daemonStopFile = DIBS_DIR + '/stop_daemon'
+@end example
+@end defopt
+
+@defopt daemonTimeout
+@anchor{daemonTimeout}
+When the DIBS daemon is alive it waits in an idle state for incoming
+connections.  After a timeout period given by this variable (specified
+in seconds), it wakes up and performs various actions such as checking
+if it should stop @ref{daemonStopFile}, checking if it should
+automatically backup files, or if it should attempt to poll passive
+peers @ref{pollInterval}.  The default value is 600.
+@end defopt
+
+@defopt pollInterval
+@anchor{pollInterval}
+This variable specifies how often (in seconds) the DIBS daemon should
+contact passive peers to ask for messages.  Since the daemon only wakes
+up to do polling periodically (@pxref{daemonTimeout}), the actual poll
+interval may be the sum of this variable, the daemonTimeout variable,
+and the time required to perform intervening actions by the daemon.
+The default value is 3600.
+@end defopt
+
+@defopt probePeriod
+@anchor{probePeriod} 
+This variable controls how of then the
+@ref{probe} command is automatically called by the daemon.
+Specifically, a @samp{probe} will be attempted roughly every
+@ref{daemonTimeout} seconds, but no more often than specified by this
+variable.
+@end defopt
+
+@defopt probeTimeout
+@anchor{probeTimeout}
+This variable specifies how long a probe is allowed to take.  If more
+time (in seconds) has passed for a probe than the value of this
+variable, the probe is marked as a timeout.
+@end defopt
+
+@defopt redundantPieces
+@anchor{redundantPieces}
+This variables specifies how many redundant pieces of a file will be
+created.  If a file is chopped into k pieces
+(@pxref{kbPerFile}), this many extra pieces will be added using a
+Reed-Solomon code.  For example, if a file is chopped into 5 pieces
+and redundantPieces is 2, then 7 pieces will be sent such that the
+original file can be recovered from any 5 of those 7 pieces.
+@end defopt
+
+@defopt hostname
+@anchor{hostname} 
+This variable specifies the name of the host on which
+your DIBS client is running.  By default, this value is obtained from
+the @samp{HOST} environment variable and should not need to be modified.
+If that environment variable is empty or returns something useless like
+@samp{localhost} or @samp{127.0.0.1}, then you should probably explictly
+set this variable.
+@end defopt
+
+@defvar daemonPort
+@anchor{daemonPort}
+This variable specifies the port the DIBS daemon should listen on.  The
+default value is 6363.
+@end defvar
+
+@defvar sleepTime
+Sometimes DIBS needs to wait briefly for things like a lockfile being released
+or an unstore request being sent out before continuing.  At these times
+it sleeps for a number of seconds specified by the sleepTime variable
+whose default value is 10.
+@end defvar
+
+@defvar maxMsgAge
+This variable specifies how many seconds a message can wait in the
+outgoing queue before DIBS complains about it.  The default is set to 10
+days:
+@example
+maxMsgAge = 86400 * 10
+@end example
+@end defvar
+
+@defvar rootDir
+@anchor{rootDir}
+This variables specifies the root directory (usually @samp{/} on a 
+UNIX system).
+@end defvar
+
+@defvar autoBackupDir
+@anchor{autoBackupDir}
+This variables specifies where the @samp{auto_check} command looks for files
+and directories to backup automatically @ref{auto_check}.
+@end defvar
+
+
+@defvar errorDir
+@anchor{errorDir}
+Any error messages which are mailed to the DIBS Administrator
+specified by @ref{dibsAdmin} are also stored in the directory named by
+this variable.  You should periodically read and delete messages here.
+@end defvar
+
+@defvar errMaxCount
+To prevent the DIBS Administrator from being mail bombed with error
+messages if something extremely unusual occurs, DIBS stops mailing
+error messages once the number of error messages in the directory
+named by @ref{errorDir} exceeds this threshold.
+@end defvar
+
+
+@defvar errWarnCount
+To prevent the DIBS Administrator from forgetting about error messages
+stored in the directory named by @ref{errorDir}, DIBS sends warnings
+about this directory filling up when the number of messages exceeds
+this threshold.
+@end defvar
+
+@defvar sendMsgThreshold
+When storing a directory DIBS works by creating a queue of outgoing
+messages before trying to connect to peers to deliver the messages.
+Once more files than specified by this variable are queued up, DIBS
+will try to connect to peers to send the messages out.  
+
+If you make this threshold too small then DIBS will waste a lot of
+time with network overhead in making and closing connections to
+peers.  If you make this threshold too large then you prevent
+pipelining of your DIBS program sending messages out and your peers
+processing the messages you are sending to them.
+@end defvar
+
+@defvar DIBS_DIR
+@anchor{DIBS_DIR}
+This variable determines the location of the user's DIBS files.  By
+default it is @samp{$@{HOME@}/.dibs}.  You @emph{can not} set this via
+the @file{dibsrc.py} because DIBS looks for the @file{dibsrc.py} file in
+the directory DIBS_DIR.  Therefore to use a directory other than
+@samp{$@{HOME@}/.dibs} to hold your DIBS files set the environment
+variable @env{DIBS_DIR}.
+@end defvar
+
+@defvar pythonExe
+This variable describes the path to the Python executable.  By default,
+it is set to the @samp{sys.executable} value obtained from Python.  You
+should not need to change it unless you have multiple versions of python
+installed and are doing something rather strange.
+@end defvar
+
+
+@defvar defaultContractServerURL
+@anchor{defaultContractServerURL}
+This variable specifies the default URL to use for the Peer Finder
+contract server.  You should only change this if you want to use a
+special Peer Finder server.
+@end defvar

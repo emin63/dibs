@@ -1,0 +1,8 @@
+
+Release 0.93 includes a major new feature: the DIBS graphical user
+interface (GUI).  Version 0.93 of DIBS should be backward compatible
+with version 0.92.
+
+To use the new GUI, just start DIBS with no arguments, e.g., type
+"dibs.py" at the command line (without the quotes) after you install
+DIBS.

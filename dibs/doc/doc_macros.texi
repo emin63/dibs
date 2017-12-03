@@ -1,0 +1,10 @@
+
+@macro dibsCom{name,args}
+@findex \name\
+@code{dibs.py \name\ \args\}
+@end macro
+
+@macro optional{arg}
+[ \arg\ ]
+@end macro
+

@@ -1,0 +1,92 @@
+
+\input texinfo
+
+@setfilename dibs.info
+
+@ifhtml
+@setfilename dibs.html
+@end ifhtml
+
+@settitle DIBS Documentation
+@setchapternewpage odd
+
+@include doc_macros.texi
+
+@contents
+
+@titlepage
+
+@end titlepage
+
+@ifinfo
+@c make sure the following line is @node Top, , , (dir)
+@c since texinfo-every-node-update screws it up
+@node Top, , , (dir)
+@end ifinfo
+
+@ifhtml
+@node Top, Overview, (dir), (dir)
+@end ifhtml
+
+@menu
+* Overview::       
+* Installion and Configuration::
+* Peer Finder::
+* Using DIBS::
+* Commands::       
+* Options::
+* Automated Testing::
+* TODO::
+* Concept Index::
+* Command Index::
+* Option Index::
+@end menu
+
+@node Overview, Installion and Configuration, Top, Top
+@chapter Overview
+@include overview.texi
+
+@node Installion and Configuration, Peer Finder, Overview, Top
+@chapter Installing
+@include installing.texi
+
+
+@node Peer Finder, Using DIBS, Installion and Configuration, Top
+@chapter Peer Finder 
+@include peer_finder.texi
+
+
+@node Using DIBS, Commands , Peer Finder, Top
+@chapter Using DIBS
+@include using.texi
+
+@node Commands , Options , Using DIBS, Top
+@chapter Commands
+@include commands.texi
+
+@node Options , Automated Testing, Commands , Top
+@chapter Options
+@include variables.texi
+
+@node Automated Testing , TODO , Options , Top
+@chapter Automated Testing
+@include automated_testing.texi
+
+@node TODO , Concept Index, Automated Testing, Top
+@chapter TODO
+@include todo.texi
+
+@node Concept Index, Command Index, TODO , Top
+@unnumbered Concept Index
+@printindex cp
+
+@node Command Index, Option Index , Concept Index, Top
+@unnumbered Command Index
+@printindex fn
+
+@node Option Index,  , Command Index, Top
+@unnumbered Option Index
+@printindex vr
+
+
+@bye
