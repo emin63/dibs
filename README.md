@@ -1,5 +1,5 @@
 
-* Foreward (Please Read)
+# Foreward (Please Read)
 
 The Distributed Internet Backup System (DIBS) was developed many years ago.
 It was an interesting idea, but was overtaken by the early cloud storage
@@ -13,7 +13,7 @@ Probably some work needs to be done on DIBS to make it useful. A good
 place to start might be to put together a simple docker based test as
 started in dibs/scripts/docktest.
 
-* OVERVIEW
+# OVERVIEW
 
 This file is a brief description of the Distributed Internet
 Backup System (DIBS) package.  
@@ -32,7 +32,7 @@ Napster, Gnutella, Kazaa, etc.  In fact, DIBS encrypts all data
 transmissions so that the peers you trade files with can not access
 your data.
 
-* DOCUMENTATION
+# DOCUMENTATION
 
 The DIBS distribution contains extensive documentation in the doc
 directory.  See doc/dibs.{info,html,dvi} for documentaion.  In
@@ -41,7 +41,7 @@ install everything and get started.  See doc/dibs-faq.html for a list
 of frequently asked questions including the many ways in which DIBS
 may be useful to you.
 
-* OBTAINING
+# OBTAINING
 
 To obtain DIBS go to
 
@@ -49,7 +49,7 @@ To obtain DIBS go to
   * http://www.csua.berkeley.edu/~emin/source_code/dibs
   * freshmeat.net. 
 
-* USING
+# USING
 
 For detailed instructions, read the accompnaying documentation.  If
 you just want to get started immediately, you can start the graphical
@@ -57,7 +57,7 @@ user interface by typing "dibs.py" at the command line (without the
 quotes) after you install DIBS.
 
 
-* FEEDBACK
+# FEEDBACK
 
 Please contact emin@alum.mit.edu with questions and comments.
 
