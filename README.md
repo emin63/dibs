@@ -45,9 +45,7 @@ may be useful to you.
 
 To obtain DIBS go to
 
-  * http://dibs.sourceforge.net
-  * http://www.csua.berkeley.edu/~emin/source_code/dibs
-  * freshmeat.net. 
+  * https://github.com/emin63/dibs
 
 # USING
 
